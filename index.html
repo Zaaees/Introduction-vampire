@@ -165,28 +165,13 @@
 
         /* --- SIDEBAR DESKTOP --- */
         .sidebar {
-            position: fixed;
-            left: calc(50% - 576px);
-            top: 5vh;
             width: 256px;
-            height: 90vh;
             background: rgba(0, 0, 0, 0.4);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px 0 0 12px;
-            z-index: 20;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-        }
-
-        /* Hide sidebar on screens smaller than max-w-6xl */
-        @media (max-width: 1200px) and (min-width: 769px) {
-            .sidebar {
-                left: 2rem;
-            }
-            .main-container {
-                margin-left: 280px;
-            }
+            flex-shrink: 0;
         }
 
         /* --- RESPONSIVE STYLES --- */
@@ -314,34 +299,34 @@
     <!-- Mobile Overlay -->
     <div class="mobile-overlay" id="mobileOverlay"></div>
 
-    <!-- Sidebar Navigation (at root level for proper z-index stacking) -->
-    <div class="sidebar" id="sidebar">
-        <div class="flex flex-col h-full">
-            <div class="p-6 border-b border-white/10 flex-shrink-0">
-                <div class="text-xs font-mono text-red-500 mb-1 tracking-widest">DOSSIER #NV-01</div>
-                <div class="text-xl font-serif font-bold text-white tracking-wide">BIENVENUE<br>DANS LA NUIT</div>
-            </div>
-            <nav class="mt-4 flex flex-col gap-1 overflow-y-auto flex-grow custom-scrollbar">
-                <div onclick="loadSection('intro')" class="sidebar-item active" id="nav-intro">I. L'Éveil</div>
-                <div onclick="loadSection('nature')" class="sidebar-item" id="nav-nature">II. La Nature</div>
-                <div onclick="loadSection('society')" class="sidebar-item" id="nav-society">III. La Société</div>
-                <div onclick="loadSection('traditions')" class="sidebar-item" id="nav-traditions">IV. Les Lois</div>
-                <div onclick="loadSection('clans')" class="sidebar-item" id="nav-clans">V. Les Sangs</div>
-                <div onclick="loadSection('enemies')" class="sidebar-item" id="nav-enemies">VI. Menaces</div>
-                <div onclick="loadSection('blood')" class="sidebar-item" id="nav-blood">VII. Sang & Servitude</div>
-                <div onclick="loadSection('etiquette')" class="sidebar-item" id="nav-etiquette">VIII. Codes Sociaux</div>
-                <div onclick="loadSection('lexicon')" class="sidebar-item" id="nav-lexicon">IX. Lexique</div>
-            </nav>
-            <div class="p-6 border-t border-white/10 mt-auto flex-shrink-0">
-                <div class="flex items-center gap-3 opacity-60">
-                    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                    <span class="text-xs font-mono">CONNEXION SÉCURISÉE</span>
+    <div class="w-full max-w-6xl h-[90vh] glass-panel rounded-xl flex overflow-hidden shadow-2xl relative main-container" id="mainContainer">
+
+        <!-- Sidebar Navigation -->
+        <div class="sidebar" id="sidebar">
+            <div class="flex flex-col h-full">
+                <div class="p-6 border-b border-white/10 flex-shrink-0">
+                    <div class="text-xs font-mono text-red-500 mb-1 tracking-widest">DOSSIER #NV-01</div>
+                    <div class="text-xl font-serif font-bold text-white tracking-wide">BIENVENUE<br>DANS LA NUIT</div>
+                </div>
+                <nav class="mt-4 flex flex-col gap-1 overflow-y-auto flex-grow custom-scrollbar">
+                    <div onclick="loadSection('intro')" class="sidebar-item active" id="nav-intro">I. L'Éveil</div>
+                    <div onclick="loadSection('nature')" class="sidebar-item" id="nav-nature">II. La Nature</div>
+                    <div onclick="loadSection('society')" class="sidebar-item" id="nav-society">III. La Société</div>
+                    <div onclick="loadSection('traditions')" class="sidebar-item" id="nav-traditions">IV. Les Lois</div>
+                    <div onclick="loadSection('clans')" class="sidebar-item" id="nav-clans">V. Les Sangs</div>
+                    <div onclick="loadSection('enemies')" class="sidebar-item" id="nav-enemies">VI. Menaces</div>
+                    <div onclick="loadSection('blood')" class="sidebar-item" id="nav-blood">VII. Sang & Servitude</div>
+                    <div onclick="loadSection('etiquette')" class="sidebar-item" id="nav-etiquette">VIII. Codes Sociaux</div>
+                    <div onclick="loadSection('lexicon')" class="sidebar-item" id="nav-lexicon">IX. Lexique</div>
+                </nav>
+                <div class="p-6 border-t border-white/10 mt-auto flex-shrink-0">
+                    <div class="flex items-center gap-3 opacity-60">
+                        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                        <span class="text-xs font-mono">CONNEXION SÉCURISÉE</span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="w-full max-w-6xl h-[90vh] glass-panel rounded-xl flex overflow-hidden shadow-2xl relative main-container">
 
         <!-- Main Content -->
         <div class="flex-1 relative bg-gradient-to-br from-gray-900 to-black overflow-hidden">
@@ -679,6 +664,7 @@
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const sidebar = document.getElementById('sidebar');
         const mobileOverlay = document.getElementById('mobileOverlay');
+        const mainContainer = document.getElementById('mainContainer');
 
         function toggleMobileMenu() {
             mobileMenuBtn.classList.toggle('active');
@@ -691,6 +677,27 @@
             sidebar.classList.remove('open');
             mobileOverlay.classList.remove('active');
         }
+
+        // Move sidebar to body level on mobile for proper z-index stacking
+        function handleSidebarPosition() {
+            const isMobile = window.innerWidth <= 768;
+            const sidebarInBody = sidebar.parentElement === document.body;
+
+            if (isMobile && !sidebarInBody) {
+                // Move sidebar to body level (before overlay)
+                document.body.insertBefore(sidebar, mobileOverlay.nextSibling);
+                closeMobileMenu();
+            } else if (!isMobile && sidebarInBody) {
+                // Move sidebar back into main container
+                mainContainer.insertBefore(sidebar, mainContainer.firstChild);
+            }
+        }
+
+        // Initial position check
+        handleSidebarPosition();
+
+        // Handle resize
+        window.addEventListener('resize', handleSidebarPosition);
 
         mobileMenuBtn.addEventListener('click', toggleMobileMenu);
         mobileOverlay.addEventListener('click', closeMobileMenu);
