@@ -1,716 +1,437 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Protocole Néonate - Accès Restreint</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Courier+Prime&display=swap');
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0c0a09">
+<title>Codex Tenebrae - Archives de Valerius</title>
+<style>
+/* Reset */
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
 
-        body {
-            background-color: #050505;
-            color: #e5e5e5;
-            font-family: 'Montserrat', sans-serif;
-            height: 100vh;
-            overflow: hidden;
-            background-image: 
-                radial-gradient(circle at 50% 50%, #1a0505 0%, #000000 100%);
-        }
+/* Body & Background */
+body{
+    font-family:Georgia,'Times New Roman',serif;
+    background:#0c0a09;
+    color:#d6d3d1;
+    line-height:1.75;
+    font-size:14px;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+}
+body::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    opacity:.03;
+    pointer-events:none;
+    z-index:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.6' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
 
-        /* --- UI ELEMENTS --- */
-        .glass-panel {
-            background: rgba(20, 20, 20, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-        }
+.container{display:flex;min-height:100vh;position:relative;z-index:1}
 
-        .sidebar-item {
-            padding: 0.8rem 1.5rem; /* Reduced padding to fit more items */
-            cursor: pointer;
-            border-left: 2px solid transparent;
-            transition: all 0.3s ease;
-            font-family: 'Courier Prime', monospace;
-            font-size: 0.85rem;
-            color: #888;
-        }
-        .sidebar-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
-        }
-        .sidebar-item.active {
-            border-left: 2px solid #b91c1c; /* Rouge Sang */
-            background: linear-gradient(90deg, rgba(185, 28, 28, 0.1) 0%, transparent 100%);
-            color: #fca5a5;
-            text-shadow: 0 0 8px rgba(185, 28, 28, 0.5);
-        }
+/* Sidebar */
+.sidebar{
+    width:280px;
+    background:#0c0a09;
+    border-right:1px solid #292524;
+    position:fixed;
+    height:100vh;
+    overflow-y:auto;
+    z-index:100;
+    display:flex;
+    flex-direction:column;
+    transition:transform .3s cubic-bezier(.4,0,.2,1);
+}
+.sidebar-header{
+    padding:2rem;
+    border-bottom:1px solid #292524;
+    background:#000;
+    text-align:center;
+}
+.sidebar-title{
+    font-size:1.5rem;
+    color:#e5e5e5;
+    font-weight:700;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    margin-bottom:.5rem;
+}
+.sidebar-divider{
+    width:2rem;
+    height:1px;
+    background:#7f1d1d;
+    margin:1rem auto;
+}
+.nav-container{flex:1;padding:1.5rem 0;overflow-y:auto}
+.nav-item{
+    width:100%;
+    padding:1.25rem 2rem;
+    background:none;
+    border:none;
+    border-right:2px solid transparent;
+    color:#57534e;
+    cursor:pointer;
+    text-align:left;
+    font-family:inherit;
+    font-size:.625rem;
+    text-transform:uppercase;
+    letter-spacing:.2em;
+    font-weight:700;
+    transition:all .3s;
+    display:block;
+}
+.nav-item:hover{color:#a8a29e;background:#151515}
+.nav-item.active{color:#e5e5e5;background:#1a1616;border-right-color:#7f1d1d}
+.sidebar-footer{
+    padding:1.5rem;
+    border-top:1px solid #292524;
+    background:#050505;
+    text-align:center;
+    font-size:.625rem;
+    color:#44403c;
+    text-transform:uppercase;
+    letter-spacing:.15em;
+    line-height:1.6;
+}
 
-        .content-area {
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: #b91c1c #1a1a1a;
-        }
-        .content-area::-webkit-scrollbar { width: 6px; }
-        .content-area::-webkit-scrollbar-thumb { background-color: #b91c1c; border-radius: 3px; }
-        .content-area::-webkit-scrollbar-track { background-color: #1a1a1a; }
+/* Main Content */
+.main-content{
+    flex:1;
+    margin-left:280px;
+    padding:4rem 2rem;
+    min-height:100vh;
+}
+.content-header{
+    text-align:center;
+    margin-bottom:5rem;
+    max-width:48rem;
+    margin-left:auto;
+    margin-right:auto;
+}
+.content-title{
+    font-size:clamp(2rem,5vw,3rem);
+    color:#e5e5e5;
+    margin-bottom:1.5rem;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    font-weight:700;
+    line-height:1.2;
+}
+.content-divider{
+    width:4rem;
+    height:1px;
+    background:#7f1d1d;
+    margin:0 auto 1.5rem;
+}
+.content-subtitle{
+    font-size:clamp(1rem,3vw,1.125rem);
+    color:#78716c;
+    font-style:italic;
+    font-weight:300;
+}
+.content-body{
+    max-width:42rem;
+    margin:0 auto;
+    font-size:.875rem;
+}
 
-        /* --- TYPOGRAPHY --- */
-        h1.chapter-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 3rem;
-            color: #fff;
-            margin-bottom: 1rem;
-            line-height: 1.1;
-            background: linear-gradient(to right, #fff, #999);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+/* Mobile */
+.mobile-btn{
+    display:none;
+    position:fixed;
+    top:1rem;
+    left:1rem;
+    z-index:200;
+    background:#1c1917;
+    border:1px solid #292524;
+    color:#d6d3d1;
+    padding:.75rem;
+    border-radius:.5rem;
+    cursor:pointer;
+    font-size:1.5rem;
+    box-shadow:0 4px 6px rgba(0,0,0,.3);
+    touch-action:manipulation;
+}
+.mobile-btn:active{transform:scale(.95)}
 
-        h2.sub-header {
-            font-family: 'Courier Prime', monospace;
-            color: #b91c1c;
-            font-size: 1.2rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-top: 2rem;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid rgba(185, 28, 28, 0.3);
-            padding-bottom: 0.5rem;
-        }
+.overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.7);
+    z-index:99;
+    opacity:0;
+    transition:opacity .3s;
+}
+.overlay.show{display:block;opacity:1}
 
-        p.text-body {
-            font-size: 1.05rem;
-            line-height: 1.8;
-            margin-bottom: 1.5rem;
-            color: #d4d4d4;
-            text-align: justify;
-        }
+@media(max-width:768px){
+    .sidebar{
+        transform:translateX(-100%);
+        max-width:300px;
+        width:85%;
+        box-shadow:2px 0 10px rgba(0,0,0,.5);
+    }
+    .sidebar.show{transform:translateX(0)}
+    .main-content{margin-left:0;padding:5rem 1.5rem 2rem}
+    .mobile-btn{display:block}
+    .content-body{font-size:.813rem}
+}
 
-        .quote-box {
-            border-left: 4px solid #b91c1c;
-            padding-left: 1.5rem;
-            margin: 2rem 0;
-            font-family: 'Playfair Display', serif;
-            font-style: italic;
-            font-size: 1.2rem;
-            color: #a3a3a3;
-        }
-        
-        /* Lexicon Styles */
-        .lexicon-term {
-            color: #fca5a5;
-            font-weight: bold;
-            font-family: 'Courier Prime', monospace;
-        }
-        .lexicon-def {
-            margin-left: 1rem;
-            color: #d4d4d4;
-            margin-bottom: 1rem;
-            display: block;
-        }
+@media(max-width:480px){
+    .main-content{padding:4rem 1rem 1.5rem}
+    .content-header{margin-bottom:3rem}
+}
 
-        /* --- ANIMATIONS --- */
-        .fade-in { animation: fadeIn 0.5s ease-out forwards; opacity: 0; transform: translateY(10px); }
-        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+/* Typography */
+h3{
+    color:#e5e5e5;
+    font-size:clamp(1.125rem,3vw,1.25rem);
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    margin:3rem 0 1.5rem;
+    text-align:center;
+}
+h4{
+    color:#d6d3d1;
+    font-size:clamp(1rem,2.5vw,1.125rem);
+    font-weight:700;
+    margin:2rem 0 1rem;
+    padding-left:.75rem;
+    border-left:3px solid #7f1d1d;
+}
+strong{color:#d6d3d1;font-weight:700}
+em,.italic{font-style:italic}
+p{margin-bottom:1rem;hyphens:auto;word-wrap:break-word}
 
-        .warning-text {
-            color: #ef4444;
-            font-weight: 600;
-        }
+/* Special elements */
+.space-y-2>*+*{margin-top:.5rem}
+.space-y-3>*+*{margin-top:.75rem}
+.space-y-4>*+*{margin-top:1rem}
+.space-y-6>*+*{margin-top:1.5rem}
+.space-y-8>*+*{margin-top:2rem}
+.space-y-12>*+*{margin-top:3rem}
+.space-y-16>*+*{margin-top:4rem}
 
-        /* --- MOBILE MENU BUTTON --- */
-        .mobile-menu-btn {
-            display: none;
-            position: fixed;
-            top: 1rem;
-            left: 1rem;
-            z-index: 100;
-            width: 48px;
-            height: 48px;
-            background: rgba(20, 20, 20, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            cursor: pointer;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-        .mobile-menu-btn span {
-            display: block;
-            width: 24px;
-            height: 2px;
-            background: #b91c1c;
-            transition: all 0.3s ease;
-        }
-        .mobile-menu-btn.active span:nth-child(1) {
-            transform: rotate(45deg) translate(5px, 5px);
-        }
-        .mobile-menu-btn.active span:nth-child(2) {
-            opacity: 0;
-        }
-        .mobile-menu-btn.active span:nth-child(3) {
-            transform: rotate(-45deg) translate(5px, -5px);
-        }
+/* Utility spacing */
+.mb-1{margin-bottom:.25rem}
+.mb-2{margin-bottom:.5rem}
+.mb-3{margin-bottom:.75rem}
+.mb-4{margin-bottom:1rem}
+.mb-6{margin-bottom:1.5rem}
+.mb-8{margin-bottom:2rem}
+.mb-12{margin-bottom:3rem}
+.mt-2{margin-top:.5rem}
+.mt-4{margin-top:1rem}
+.mt-6{margin-top:1.5rem}
+.mt-8{margin-top:2rem}
+.mt-12{margin-top:3rem}
+.mt-16{margin-top:4rem}
+.my-8{margin-top:2rem;margin-bottom:2rem}
+.my-10{margin-top:2.5rem;margin-bottom:2.5rem}
+.my-12{margin-top:3rem;margin-bottom:3rem}
+.pb-2{padding-bottom:.5rem}
+.pb-3{padding-bottom:.75rem}
+.pb-4{padding-bottom:1rem}
+.pb-8{padding-bottom:2rem}
+.pb-12{padding-bottom:3rem}
+.pt-8{padding-top:2rem}
+.pt-12{padding-top:3rem}
+.pl-3{padding-left:.75rem}
+.pl-4{padding-left:1rem}
+.py-1{padding-top:.25rem;padding-bottom:.25rem}
+.p-3{padding:.75rem}
+.p-4{padding:1rem}
 
-        /* --- MOBILE OVERLAY --- */
-        .mobile-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 40;
-        }
+/* Text sizes */
+.text-xs{font-size:.75rem;line-height:1rem}
+.text-sm{font-size:.875rem;line-height:1.25rem}
+.text-base{font-size:1rem;line-height:1.5rem}
+.text-xl{font-size:1.25rem;line-height:1.75rem}
+.text-2xl{font-size:1.5rem;line-height:2rem}
+.text-6xl{font-size:clamp(2.5rem,8vw,3.75rem);line-height:1}
 
-        /* --- SIDEBAR DESKTOP --- */
-        .sidebar {
-            width: 256px;
-            background: rgba(0, 0, 0, 0.4);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            flex-shrink: 0;
-        }
+/* Text utilities */
+.text-justify{text-align:justify}
+.text-center{text-align:center}
+.uppercase{text-transform:uppercase}
+.tracking-wider{letter-spacing:.05em}
+.tracking-widest{letter-spacing:.1em}
+.font-bold{font-weight:700}
+.leading-7{line-height:1.75rem}
 
-        /* --- RESPONSIVE STYLES --- */
-        @media (max-width: 768px) {
-            body {
-                padding: 0;
-                height: 100vh;
-                overflow: hidden;
-            }
+/* Colors */
+.text-\[\#d6d3d1\]{color:#d6d3d1}
+.text-\[\#a8a29e\]{color:#a8a29e}
+.text-\[\#78716c\]{color:#78716c}
+.text-\[\#7f1d1d\]{color:#7f1d1d}
+.text-\[\#991b1b\]{color:#991b1b}
+.text-\[\#e5e5e5\]{color:#e5e5e5}
+.text-\[\#57534e\]{color:#57534e}
+.text-\[\#44403c\]{color:#44403c}
+.text-\[\#b91c1c\]{color:#b91c1c}
+.text-\[\#059669\]{color:#059669}
+.text-\[\#7c3aed\]{color:#7c3aed}
+.text-\[\#10b981\]{color:#10b981}
 
-            .mobile-menu-btn {
-                display: flex;
-            }
+/* Background - subtle highlights only */
+.bg-\[\#1c1917\]{background:transparent;border-left:3px solid #7f1d1d;padding-left:1rem;margin:1rem 0}
 
-            .main-container {
-                max-width: 100%;
-                height: 100vh;
-                border-radius: 0;
-            }
+/* Borders - simplified */
+.border-b{border-bottom:1px solid #292524;padding-bottom:1rem;margin-bottom:1rem}
+.border-t{border-top:1px solid #292524;padding-top:1rem;margin-top:1rem}
+.border-l{border-left:2px solid #7f1d1d}
+.border-l-2{border-left:2px solid}
+.border-l-4{border-left:3px solid}
+.border-\[\#7f1d1d\]{border-color:#7f1d1d}
+.border-\[\#44403c\]{border-color:#44403c}
+.border-\[\#292524\]{border-color:#292524}
+.border-\[\#57534e\]{border-color:#57534e}
+.border-\[\#059669\]{border-color:#059669}
+.border-\[\#7c3aed\]{border-color:#7c3aed}
+.border-\[\#10b981\]{border-color:#10b981}
 
-            /* Sidebar mobile */
-            .sidebar {
-                position: fixed;
-                left: 0;
-                top: 0;
-                width: 280px;
-                height: 100vh;
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-                z-index: 60;
-                background: rgba(10, 10, 10, 0.98);
-                border-radius: 0;
-            }
-            .sidebar.open {
-                transform: translateX(0);
-            }
+/* Flexbox */
+.flex{display:flex}
+.items-center{align-items:center}
+.justify-center{justify-content:center}
+.gap-4{gap:1rem}
 
-            .mobile-overlay.active {
-                display: block;
-            }
+/* Sizing */
+.w-6{width:1.5rem}
+.h-6{height:1.5rem}
+.w-16{width:4rem}
+.w-20{width:5rem}
+.h-px{height:1px}
+.max-w-2xl{max-width:42rem}
+.mx-auto{margin-left:auto;margin-right:auto}
 
-            /* Content area mobile */
-            #content-container {
-                padding: 1.5rem;
-                padding-top: 4.5rem;
-            }
+/* Float */
+.float-left{float:left}
+.mr-4{margin-right:1rem}
+.mt-\[-12px\]{margin-top:-12px}
 
-            h1.chapter-title {
-                font-size: 1.8rem;
-                margin-bottom: 0.75rem;
-            }
+/* Display */
+.block{display:block}
 
-            h2.sub-header {
-                font-size: 1rem;
-                margin-top: 1.5rem;
-            }
+/* Selection */
+::selection{background:#7f1d1d;color:#fff}
 
-            p.text-body {
-                font-size: 0.95rem;
-                line-height: 1.7;
-                text-align: left;
-            }
+/* Scrollbar */
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:#0c0a09}
+::-webkit-scrollbar-thumb{background:#292524;border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:#44403c}
 
-            .quote-box {
-                font-size: 1rem;
-                padding-left: 1rem;
-                margin: 1.5rem 0;
-            }
+@media(max-width:768px){
+    ::-webkit-scrollbar{width:4px}
+}
 
-            .sidebar-item {
-                padding: 1rem 1.5rem;
-                font-size: 0.9rem;
-            }
+/* Smooth scrolling */
+html{scroll-behavior:smooth}
 
-            ul.list-disc {
-                padding-left: 1.25rem;
-            }
+/* Fade in animation */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.content-body{animation:fadeIn .5s ease-in}
 
-            ul.list-disc li {
-                font-size: 0.9rem;
-            }
+/* SVG icons */
+svg{display:inline-block;vertical-align:middle}
 
-            .lexicon-term {
-                font-size: 0.95rem;
-            }
-            .lexicon-def {
-                font-size: 0.9rem;
-            }
-        }
+/* Lists without boxes */
+ul,ol{margin-left:1.5rem;margin-bottom:1rem}
+li{margin-bottom:.5rem;color:#a8a29e}
 
-        @media (max-width: 480px) {
-            #content-container {
-                padding: 1rem;
-                padding-top: 4rem;
-            }
+/* Article sections with colored accents */
+article{margin-bottom:3rem}
+article .flex.items-center{margin-bottom:1.5rem}
+article .flex.items-center svg{margin-right:.75rem}
+article .flex.items-center h3{margin:0;text-align:left}
 
-            h1.chapter-title {
-                font-size: 1.5rem;
-            }
+/* Colored borders for different sections */
+.border-\[\#b91c1c\] h3{color:#b91c1c}
+.border-\[\#059669\] h3{color:#059669}
+.border-\[\#7c3aed\] h3{color:#7c3aed}
+.border-\[\#10b981\] h3{color:#10b981}
 
-            p.text-body {
-                font-size: 0.9rem;
-                margin-bottom: 1rem;
-            }
-
-            .quote-box {
-                font-size: 0.95rem;
-            }
-
-            .sidebar {
-                width: 100%;
-            }
-        }
-    </style>
+/* Simple horizontal dividers */
+.content-body>div.flex.justify-center{margin:2.5rem 0}
+.content-body>div.flex.justify-center>div{background:#7f1d1d;height:1px;width:5rem}
+</style>
 </head>
-<body class="flex items-center justify-center p-8">
+<body>
+<button class="mobile-btn" onclick="toggleNav()" aria-label="Menu">☰</button>
+<div class="overlay" onclick="toggleNav()"></div>
+<div class="container">
+<nav class="sidebar" id="sidebar" role="navigation">
+<div class="sidebar-header">
+<h1 class="sidebar-title">Archivum</h1>
+<div class="sidebar-divider"></div>
+</div>
+<div class="nav-container">
+<button class="nav-item active" onclick="showSection('prologue')">Prologue</button>
+<button class="nav-item " onclick="showSection('genese')">La Genèse</button>
+<button class="nav-item " onclick="showSection('physiologie')">La Physiologie</button>
+<button class="nav-item " onclick="showSection('society')">La Société</button>
+<button class="nav-item " onclick="showSection('clans')">Les Lignées</button>
+<button class="nav-item " onclick="showSection('ennemis')">Les Prédateurs</button>
+</div>
+<div class="sidebar-footer">Mourir est un art<br>Londres, 1893</div>
+</nav>
+<main class="main-content" role="main">
+<div id="content"></div>
+</main>
+</div>
+<script>
+const sections=[{"id": "prologue", "title": "Prologue", "subtitle": "Confession d'un Monstre", "content": "<div class=\"max-w-2xl mx-auto font-serif text-[#d6d3d1] space-y-8 leading-7 text-sm\">\n        \n        <div class=\"border-b border-[#7f1d1d] pb-8 mb-8 text-center\">\n            <p class=\"italic text-[#a8a29e] text-base leading-relaxed\">\n            \"Compilé par Valerius, dit l'Archiviste — Londres, cette nuit de décembre 2024\"\n            </p>\n        </div>\n\n        <p class=\"text-justify\">\n          <span class=\"text-6xl float-left mr-4 mt-[-12px] text-[#7f1d1d] font-bold\">F</span>ermez la porte. Verrouillez-la. Tirez les rideaux et assurez-vous que personne ne peut voir ce que vous lisez. Ce codex est un crime aux yeux de la Camarilla. Sa simple possession vous condamne. Si le Prince — ce despote local qui prétend régner sur votre non-vie — apprend que ces pages sont entre vos mains, il n'y aura pas de procès, pas de plaidoirie, pas même l'apparence d'une justice. Juste une aube forcée, les mains attachées face à l'est, tandis que le soleil se lèvera sur votre chair hurlante.\n        </p>\n\n        <p class=\"text-justify\">\n          Je me nomme Valerius. Autrefois Primogène du Clan Malkavien à la Cour de Londres, avant que la lucidité ne devienne un fardeau trop lourd pour l'hypocrisie de mes pairs. Aujourd'hui, je suis Autarkis — un indépendant, un hérétique, un chroniqueur de vérités interdites.\n        </p>\n\n        <p class=\"text-justify\">\n          Vous êtes ici parce que vous avez survécu à l'Étreinte. Vous êtes mort, puis vous vous êtes réveillé. Votre cœur ne bat plus. Votre peau est froide comme le marbre d'une tombe. Et vous avez faim — oh, comme vous avez faim. Cette soif qui vous tenaille n'est pas une métaphore poétique. C'est la Bête, votre nouvelle compagne pour l'éternité, qui gratte à l'intérieur de votre crâne et exige son dû.\n        </p>\n\n        <p class=\"text-justify\">\n          La société qui vous accueille maintenant se présente sous des dehors civilisés. La Camarilla se drape dans les oripeaux de la noblesse, parle de Traditions et de dignité, organise des Élysées où l'on discute politique en sirotant du sang vintage dans des coupes de cristal. Ne vous y trompez pas : c'est un abattoir géré par des cadavres paranoïaques qui ont survécu des siècles en trahissant tout ce qui ressemblait à la confiance.\n        </p>\n\n        <p class=\"text-justify\">\n          Ils vous diront que les Antédiluviens — ces treize monstres antiques fondateurs de nos Clans — n'existent pas. Qu'ils sont des mythes pour effrayer les Nouveau-nés. Ils vous diront que la Géhenne, notre Apocalypse prophétisée, n'est qu'une superstition médiévale perpétuée par les fanatiques du Sabbat. Ils mentent. Par omission, par conviction, par terreur — mais ils mentent.\n        </p>\n\n        <p class=\"text-justify\">\n          Vous êtes un pion sur un échiquier dont vous ne voyez pas les bords. Les joueurs qui déplacent les pièces ont des millénaires d'avance sur vous. Le sang qui coule dans vos veines mortes n'est pas vraiment le vôtre — il appartient à Caïn, le Premier Vampire, et un jour, il le réclamera. Tous les vampires seront jugés. Tous seront pesés. Et la plupart seront trouvés insuffisants.\n        </p>\n\n        <p class=\"text-justify\">\n          Ce codex est ma tentative désespérée de vous donner une chance. Non pas de gagner — nous avons tous perdu à l'instant où nous avons accepté l'Étreinte — mais de survivre assez longtemps pour comprendre pourquoi nous avons perdu.\n        </p>\n\n        <div class=\"flex justify-center my-8\"><div class=\"w-16 h-px bg-[#7f1d1d]\"></div></div>\n\n        <h3 class=\"text-center text-xl text-[#e5e5e5] uppercase tracking-widest font-bold mb-6\">Lexicon Sanguinis : Le Vocabulaire de la Survie</h3>\n        \n        <p class=\"text-justify mb-6 text-[#a8a29e]\">\n          Notre espèce possède son propre langage, forgé à travers des millénaires de nécessité et de paranoïa. Maîtrisez-le. Un vampire qui trébuche sur la terminologie révèle immédiatement son inexpérience, et l'inexpérience est une faiblesse que vos aînés exploiteront sans pitié.\n        </p>\n\n        <div class=\"space-y-6\">\n          <div>\n              <strong class=\"text-[#7f1d1d] uppercase text-xs tracking-wider block mb-1\">Le Bétail</strong>\n              <p class=\"text-justify\">C'est ainsi que nous nommons les mortels. Pas par mépris — quoique certains en ressentent — mais par pragmatisme brutal. Ils sont notre subsistance, notre troupeau, notre couverture. Sans eux, nous ne sommes que poussière animée attendant la torpeur. Un berger intelligent protège ses moutons ; seul un fou massacre son propre cheptel. Souvenez-vous : ils sont sept milliards, nous sommes quelques milliers. Les mathématiques ne sont pas en notre faveur.</p>\n          </div>\n          <div>\n              <strong class=\"text-[#7f1d1d] uppercase text-xs tracking-wider block mb-1\">Caïnites</strong>\n              <p class=\"text-justify\">C'est notre nom véritable. Les descendants du Premier Meurtrier, marqués par sa malédiction, porteurs de son péché originel. C'est un terme poli pour éviter de prononcer le mot que nous sommes réellement : monstres. Certains préfèrent « Sang », « Damné », ou même « Vampire » quand ils s'adressent à des Nouveau-nés. Peu importe le terme — la réalité demeure inchangée.</p>\n          </div>\n          <div>\n              <strong class=\"text-[#7f1d1d] uppercase text-xs tracking-wider block mb-1\">La Mascarade</strong>\n              <p class=\"text-justify\">Notre loi suprême, la Première Tradition, le Grand Mensonge qui nous maintient en vie depuis des siècles. C'est l'illusion collective que nous n'existons pas. Que les vampires appartiennent aux films et aux romans, pas à la réalité. Cette façade protège notre espèce entière des torches, des pieux, et — plus pertinent dans notre ère moderne — des missiles, des drones, et de la surveillance numérique omniprésente. Briser la Mascarade, même accidentellement, est puni par la Mort Finale. Sans appel. Sans exception.</p>\n          </div>\n          <div>\n              <strong class=\"text-[#7f1d1d] uppercase text-xs tracking-wider block mb-1\">L'Étreinte</strong>\n              <p class=\"text-justify\">Le processus par lequel un mortel devient Caïnite. Vidé de son sang, puis nourri du sang vampirique. La mort, puis la renaissance dans les ténèbres. Votre Sire — le vampire qui vous a créé — vous a condamné à cette existence. Que ce fût par amour, par besoin, ou par simple caprice importe peu. Le résultat est le même.</p>\n          </div>\n          <div>\n              <strong class=\"text-[#7f1d1d] uppercase text-xs tracking-wider block mb-1\">La Vitae</strong>\n              <p class=\"text-justify\">Notre sang. Ce n'est pas un simple fluide corporel. C'est pouvoir, monnaie, addiction et essence mystique simultanément. Un vampire peut utiliser sa Vitae pour accomplir des prodiges — guérir instantanément, augmenter ses capacités physiques, dominer les esprits faibles. Mais chaque usage épuise vos réserves, et la seule façon de les reconstituer est de chasser. Toujours chasser.</p>\n          </div>\n          <div>\n              <strong class=\"text-[#7f1d1d] uppercase text-xs tracking-wider block mb-1\">Le Lien de Sang</strong>\n              <p class=\"text-justify\">Buvez trois fois du sang du même vampire, et vous deviendrez son esclave. Pas une métaphore. Un esclave littéral, incapable de lui désobéir, consumé par une dévotion qui transcende la raison. C'est l'outil de contrôle préféré des Princes et des Primogènes. Soyez vigilant concernant ce que vous buvez et de qui.</p>\n          </div>\n        </div>\n\n        <div class=\"flex justify-center my-8\"><div class=\"w-16 h-px bg-[#7f1d1d]\"></div></div>\n\n        <h3 class=\"text-center text-xl text-[#991b1b] uppercase tracking-widest font-bold mb-6\">De Amaranthe : Le Crime Suprême</h3>\n        \n        <p class=\"text-justify\">Il existe parmi nous un acte considéré pire que tous les autres. Pire que la rupture de la Mascarade. Pire que le meurtre d'un Prince. C'est l'Amaranthe, que le vulgaire nomme Diablerie.</p>\n        \n        <p class=\"text-justify\">La Diablerie consiste à vider complètement un autre vampire de sa Vitae, à boire jusqu'à la dernière goutte, jusqu'à ce que l'âme même de la victime soit aspirée et consumée. Le diaboliste absorbe non seulement le sang de sa proie, mais une fraction de son pouvoir, de ses souvenirs, de son essence. Si la victime était d'une génération inférieure — plus proche de Caïn — le diaboliste peut même réduire sa propre génération, devenant plus puissant d'un coup.</p>\n        \n        <p class=\"text-justify text-[#a8a29e] italic\">C'est notre cannibalisme. Notre péché cardinal.</p>\n        \n        <p class=\"text-justify\">La tentation est immense. Imaginez absorber des siècles d'expérience en une nuit. Imaginez devenir plus puissant que votre Sire, que les Anciens qui vous méprisent. Cette tentation a détruit plus de vampires que le soleil.</p>\n        \n        <p class=\"text-justify\">Car la Diablerie laisse des traces. L'aura du diaboliste devient souillée de stries noires — visibles pour quiconque possède les sens appropriés — pendant des années, parfois des décennies. C'est une marque indélébile, une preuve irréfutable du crime. Et le châtiment est toujours le même : la Mort Finale, administrée publiquement pour servir d'exemple.</p>\n        \n        <p class=\"text-justify\">Certains l'ont tout de même pratiquée. Les Assamites en firent une religion. Le Sabbat l'encourage lors de rituels mystiques. Et individuellement, dans le secret des nuits sans témoins, d'innombrables vampires ont goûté à l'âme de leurs semblables.</p>\n        \n        <p class=\"text-justify\">Mais sachez ceci : chaque fois qu'un vampire en dévore un autre, la malédiction de Caïn se réjouit. Car nous accomplissons exactement ce qu'il avait prophétisé — les enfants dévorant les parents, génération après génération, jusqu'à ce qu'il ne reste plus rien.</p>\n\n        <div class=\"mt-12 pt-8 border-t border-[#44403c] text-center space-y-4\">\n           <p class=\"text-justify\">Voilà les premières vérités. Les fondations sur lesquelles vous devez construire votre compréhension de ce que vous êtes devenu. Ce codex contient bien davantage — l'histoire de nos Clans, la politique byzantine de la Camarilla, les secrets des Disciplines, les signes précurseurs de la Géhenne.</p>\n           <p class=\"text-justify\">Mais commencez ici. Apprenez le vocabulaire. Comprenez les règles. Et par-dessus tout, n'oubliez jamais que vous vivez désormais dans un monde où la connaissance est à la fois salut et condamnation.</p>\n           <p class=\"italic text-[#d6d3d1]\">La nuit vous appartient maintenant. Utilisez-la sagement.</p>\n           \n           <div class=\"mt-8\">\n               <p class=\"font-bold text-[#7f1d1d] uppercase tracking-widest\">— Valerius</p>\n               <p class=\"text-xs text-[#57534e] mt-2 font-serif italic\">\"Scientia potentia est, sed veritas te consumet\"<br/>(La connaissance est pouvoir, mais la vérité te consumera)</p>\n           </div>\n        </div>\n\n      </div>"}, {"id": "genese", "title": "La Genèse", "subtitle": "D'où nous venons", "content": "\n      <div class=\"max-w-2xl mx-auto font-serif text-[#d6d3d1] space-y-8 leading-7 text-sm\">\n        \n        <div class=\"border-b border-[#7f1d1d] pb-8 mb-8 text-center\">\n            <p class=\"italic text-[#a8a29e] text-base leading-relaxed\">\n            \"Extrait des Archives de Valerius, l'Archiviste — Compilé cette nuit du 17 décembre 2024, dans ma retraite londonienne, tandis que la pluie frappe les carreaux comme autant d'âmes suppliantes.\"\n            </p>\n        </div>\n\n        <p class=\"text-justify\">\n          L'histoire biblique que connaissent les mortels n'est qu'un fragment édulcoré de la vérité. Caïn et Abel, les fils d'Adam. Le fermier et le berger. L'offrande refusée, le meurtre dans les champs. Tout cela est véridique, mais incomplet.\n        </p>\n\n        <div class=\"flex justify-center my-8\"><div class=\"w-16 h-px bg-[#7f1d1d]\"></div></div>\n\n        <h3 class=\"text-center text-xl text-[#e5e5e5] uppercase tracking-widest font-bold mb-6\">La Marque</h3>\n        \n        <p class=\"text-justify\">\n          Après avoir tué son frère — avec une pierre, selon certains textes, une mâchoire d'âne selon d'autres — Caïn fut confronté à Dieu. Le Créateur lui demanda : « Qu'as-tu fait ? » La réponse de Caïn résume tout ce que nous sommes devenus : « Suis-je le gardien de mon frère ? »\n        </p>\n        \n        <p class=\"text-justify\">\n          Cet orgueil, cette insolence face au divin, lui valut non pas la mort, mais quelque chose de bien pire : l'immortalité. La Marque fut placée sur lui, une malédiction tissée dans la trame même de son être. Il serait banni de la lumière du soleil, condamné à se nourrir du sang des vivants, et protégé par un décret terrible : quiconque le tuerait subirait une vengeance « sept fois supérieure ».\n        </p>\n\n        <div class=\"flex justify-center my-8\"><div class=\"w-16 h-px bg-[#7f1d1d]\"></div></div>\n\n        <h3 class=\"text-center text-xl text-[#e5e5e5] uppercase tracking-widest font-bold mb-6\">L'Exil et l'Apprentissage</h3>\n        \n        <p class=\"text-justify\">\n          Caïn s'en fut dans les terres sauvages à l'est d'Éden, dans la Terre de l'Errance que les textes anciens nomment Nod. Là, seul pendant des générations, il découvrit l'étendue de sa malédiction. La soif. La faiblesse à la lumière. La prédation nécessaire.\n        </p>\n        \n        <p class=\"text-justify\">\n          C'est durant cet exil qu'il rencontra Lilith, la première femme d'Adam, elle-même bannie. Les textes — notamment le <em>Livre de Nod</em> — rapportent qu'elle lui enseigna à transformer sa malédiction en pouvoir. Elle lui révéla les secrets du Sang, comment façonner les Disciplines, comment survivre dans les ténèbres. Que leur relation fût celle de maîtresse à élève, de tentatrice à damné, ou simplement de deux exilés reconnaissant leur solitude commune, les récits divergent.\n        </p>\n\n        <div class=\"flex justify-center my-8\"><div class=\"w-16 h-px bg-[#7f1d1d]\"></div></div>\n\n        <h3 class=\"text-center text-xl text-[#e5e5e5] uppercase tracking-widest font-bold mb-6\">La Première Cité</h3>\n        \n        <p class=\"text-justify\">\n          Caïn ne resta pas seul éternellement. Il créa des enfants — non de chair, mais de sang. Trois êtres furent Étreints : Enoch, Zillah et Irad, formant la Deuxième Génération. Avec eux, il construisit la Première Cité, qu'il nomma Enoch.\n        </p>\n        \n        <p class=\"text-justify\">\n          Cette métropole fut une merveille sombre où vampires et mortels coexistaient. Les mortels servaient de troupeaux, ignorants pour la plupart de la véritable nature de leurs maîtres. C'était un paradis noir, le premier et le dernier de son genre.\n        </p>\n        \n        <p class=\"text-justify\">\n          La Deuxième Génération engendra à son tour treize vampires — la Troisième Génération, les Antédiluviens. Chacun développa des pouvoirs uniques, des manifestations particulières de la Malédiction originelle. Ces treize devinrent les fondateurs de nos Clans. Les Ventrues et leur noblesse corrompue. Les Nosferatus avec leur hideur physique. Les Malkavians et leur lucidité fracturée. Treize lignées, treize façons d'être damné.\n        </p>\n\n        <div class=\"flex justify-center my-8\"><div class=\"w-16 h-px bg-[#7f1d1d]\"></div></div>\n\n        <h3 class=\"text-center text-xl text-[#e5e5e5] uppercase tracking-widest font-bold mb-6\">La Trahison et l'Abandon</h3>\n        \n        <p class=\"text-justify\">\n          L'orgueil, encore et toujours l'orgueil. La Troisième Génération grandit en puissance et jalousèrent leurs Sires. Des murmures de rébellion circulèrent. Finalement, l'inévitable se produisit : les Antédiluviens se retournèrent contre la Deuxième Génération et commirent le premier Amaranth, la première Diablerie — tuer un vampire et dévorer son âme avec son sang.\n        </p>\n        \n        <p class=\"text-justify\">\n          Caïn, témoin de cette trahison qui reflétait son propre crime originel, maudit ses petits-enfants. « Vous avez tué vos Sires. Que votre propre progéniture se lève un jour contre vous. Et que chaque génération soit plus faible que la précédente, le sang se diluant jusqu'à ce qu'il ne reste presque rien. »\n        </p>\n        \n        <p class=\"text-justify\">\n          Puis il disparut. Abandonné la Première Cité, évanoui dans les ténèbres. Personne ne l'a revu depuis avec certitude. Il y a eu des prétendants au fil des millénaires, mais le véritable Père Sombre ? Disparu.\n        </p>\n        \n        <p class=\"text-justify\">\n          Peu après son départ, le Déluge détruisit la Première Cité. Le cataclysme biblique noya cette métropole vampirique, l'effaçant comme si elle n'avait jamais existé. Les Antédiluviens survécurent, s'éparpillant à travers le monde, engendrant leurs propres lignées. Et chaque génération successive devint effectivement plus faible, exactement comme la malédiction l'avait prédit.\n        </p>\n\n        <div class=\"flex justify-center my-8\"><div class=\"w-16 h-px bg-[#7f1d1d]\"></div></div>\n\n        <h3 class=\"text-center text-xl text-[#991b1b] uppercase tracking-widest font-bold mb-6\">La Géhenne</h3>\n        \n        <p class=\"text-justify\">\n          Des millénaires plus tard, nous voici. Tous descendants de Caïn, porteurs de sa malédiction. La treizième, quatorzième, parfois quinzième génération maintenant — le sang si dilué que certains peuvent à peine prétendre au titre de Caïnite.\n        </p>\n        \n        <p class=\"text-justify\">\n          Le <em>Livre de Nod</em> prophétise la Géhenne, la fin des temps pour notre espèce. Les Antédiluviens s'éveilleront de leur torpeur millénaire, affamés et déments, pour dévorer leur propre progéniture. Tous les vampires du monde, de la quatrième à la quinzième génération, deviendront le repas final de ces treize monstres antiques. La malédiction de Caïn atteindra sa conclusion logique : les enfants dévorant les parents, qui dévorent les enfants, jusqu'à l'extinction totale.\n        </p>\n        \n        <p class=\"text-justify\">\n          Certains croient que Caïn reviendra pour observer cette fin. D'autres pensent qu'il dort quelque part, attendant ce moment. Quelques optimistes pathétiques espèrent qu'il interviendra pour nous sauver.\n        </p>\n        \n        <p class=\"text-justify\">\n          La vérité, probablement, est qu'il nous regarde déjà depuis les ombres, témoignant de ses enfants répétant éternellement les mêmes erreurs. Le meurtre. La trahison. L'orgueil. Nous sommes tous Caïn tuant Abel, encore et encore, à travers les siècles.\n        </p>\n        \n        <p class=\"text-justify text-[#a8a29e] italic\">\n          Voilà notre origine. Voilà pourquoi nous brûlons au soleil. Voilà pourquoi nous devons tuer pour survivre. Non pas des immortels romantiques, mais des fragments d'une malédiction vieille de dix mille ans, la preuve que certains péchés ne peuvent jamais être lavés, seulement transmis.\n        </p>\n        \n        <p class=\"text-justify\">\n          La Marque de Caïn est réelle. Le Sang est réel. Et la Géhenne approche.\n        </p>\n\n        <div class=\"mt-12 pt-8 border-t border-[#44403c] text-center space-y-4\">\n           <p class=\"font-bold text-[#7f1d1d] uppercase tracking-widest\">— Valerius, l'Archiviste</p>\n           <p class=\"text-[#57534e] text-xs\">Neuvième Génération, Clan Malkavian</p>\n           <p class=\"text-[#44403c] text-xs italic\">\"In tenebris veritas\"</p>\n        </div>\n      </div>\n        "}, {"id": "physiologie", "title": "La Physiologie", "subtitle": "Le Corps Mort-Vivant", "content": "<div class=\"max-w-2xl mx-auto font-serif text-[#d6d3d1] space-y-12 leading-7 text-sm\">\n        \n        <p class=\"italic text-[#a8a29e] text-center mb-8\">\n           \"Comprenez ceci avant toute chose : le sang est la monnaie de notre univers. Sans lui, vous n'êtes qu'un cadavre animé par l'inertie. Avec lui, vous pouvez accomplir ce que les mortels nommeraient des miracles. Le sang est simultanément votre carburant, votre arme, votre malédiction et votre addiction. Tout ce que vous êtes désormais tourne autour de cette substance écarlate.\"\n        </p>\n\n        <section>\n            <h3 class=\"text-center text-xl text-[#e5e5e5] uppercase tracking-widest font-bold mb-6 border-b border-[#292524] pb-4\">De Vitae : L'Essence de Notre Existence</h3>\n            <p class=\"text-justify mb-4\">\n                Le sang que nous consommons n'est pas un simple fluide biologique. Ce n'est pas l'hémoglobine et le plasma que les mortels étudient dans leurs laboratoires stériles. C'est la Vitae — la vie elle-même, distillée, concentrée, transformée en essence mystique. C'est le carburant alchimique qui permet à votre corps mort de défier les lois fondamentales de la physique et de la biologie.\n            </p>\n            <p class=\"text-justify mb-4\">\n                Votre cœur ne bat plus. Vos poumons ne respirent que par habitude ou pour parler. Votre température corporelle est celle de l'air ambiant. Vous êtes, techniquement, cliniquement, définitivement mort. Et pourtant vous bougez, vous pensez, vous existez. Comment ? Par la Vitae. Chaque mouvement, chaque pensée, chaque instant de conscience est acheté avec du sang volé à des créatures vivantes.\n            </p>\n            <p class=\"text-justify mb-4\">\n                Chaque soir, le simple fait d'ouvrir les yeux exige un tribut. C'est ce que nous nommons la Taxe de l'Éveil — le sang doit être forcé dans les veines desséchées, pompé dans les capillaires effondrés, distribué aux tissus nécrosés pour leur donner l'apparence de la vie. C'est un processus automatique, inconscient, mais il consomme néanmoins votre réserve précieuse.\n            </p>\n            <p class=\"text-justify\">\n                Si vous êtes complètement à sec — si vous avez épuisé jusqu'à la dernière goutte de Vitae dans votre système — vous ne mourez pas. Oh non, ce serait trop miséricordieux. Vous sombrez en stase, conscient dans l'obscurité absolue de votre propre crâne, incapable de bouger ne serait-ce qu'un doigt, de cligner des yeux, d'émettre le moindre son. Vous êtes enterré vivant dans votre propre corps, attendant que la chance, la pitié, ou plus probablement un prédateur curieux vous apporte une goutte de vie. Certains vampires sont restés dans cet état pendant des décennies, hurlant silencieusement dans le néant.\n            </p>\n        </section>\n\n        <div class=\"flex justify-center\"><div class=\"w-16 h-px bg-[#7f1d1d]\"></div></div>\n\n        <section>\n            <h3 class=\"text-center text-xl text-[#e5e5e5] uppercase tracking-widest font-bold mb-6 border-b border-[#292524] pb-4\">L'Exaltation Physique</h3>\n            <p class=\"text-justify mb-4\">\n                La Vitae peut être utilisée activement, consciemment, pour transcender les limitations même généreuses de votre corps vampirique. En saturant vos muscles morts de sang concentré, vous déclenchez ce que nous appelons l'Exaltation Physique — une augmentation surnaturelle de vos capacités.\n            </p>\n            <p class=\"text-justify mb-4\">\n                Vous devenez instantanément plus fort qu'un champion olympique. Plus rapide qu'un guépard. Plus résistant que l'acier trempé. Vos sens s'aiguisent jusqu'à percevoir le battement de cœur d'un mortel à travers un mur de béton. C'est une sensation de puissance divine, grisante, presque orgasmique dans son intensité. Vous comprenez soudainement pourquoi les mortels nous vénéraient comme des dieux dans les temps anciens.\n            </p>\n            <p class=\"text-justify\">\n                Mais — et il y a toujours un \"mais\" dans notre existence maudite — chaque seconde de cette exaltation brûle votre Vitae à une vitesse effrayante. Trois secondes de force surhumaine peuvent vider une réserve de sang qui vous aurait normalement soutenu pendant des heures. C'est le pacte faustien de la puissance vampirique : vous pouvez accomplir l'impossible, mais le prix est toujours, inévitablement, la faim.\n            </p>\n        </section>\n\n        <div class=\"flex justify-center\"><div class=\"w-16 h-px bg-[#7f1d1d]\"></div></div>\n\n        <section>\n            <h3 class=\"text-center text-xl text-[#e5e5e5] uppercase tracking-widest font-bold mb-6 border-b border-[#292524] pb-4\">Régénération : Tisser la Chair Morte</h3>\n            <p class=\"text-justify mb-4\">\n                Voici une vérité que les mortels ne comprennent pas dans leurs fantasmes romantiques sur l'immortalité : nous ne guérissons pas naturellement. Jamais. Une entaille faite sur un cadavre reste ouverte pour l'éternité. Votre corps n'a plus de système immunitaire fonctionnel, plus de plaquettes pour coaguler le sang, plus de cellules souches pour régénérer les tissus.\n            </p>\n            <p class=\"text-justify mb-4\">\n                Pour guérir, vous devez le vouloir. Vous devez consciemment diriger votre Vitae vers la blessure, forcer le sang mystique à accomplir ce que la biologie ne peut plus faire. En concentrant votre essence vers la plaie, vous obligez la chair morte à se tricoter, les nerfs sectionnés à se reconnecter, les os brisés à se ressouder dans un concert de craquements humides et obscènes.\n            </p>\n            <p class=\"text-justify mb-4\">\n                C'est un processus visqueux, bruyant, parfois même douloureux malgré notre seuil de douleur élevé. La peau se referme comme une fermeture éclair de chair. Les os crissent en se reformant. Et toujours, toujours, cela coûte du sang. Une égratignure superficielle ? Négligeable. Un membre arraché ? Cela peut vider la moitié de vos réserves.\n            </p>\n            <p class=\"text-justify\">\n                Mais c'est nécessaire. Un vampire couvert de blessures visibles brise la Mascarade simplement en existant. Les mortels remarquent un homme qui marche avec un trou de balle non cicatrisé dans la poitrine. Alors nous guérissons, nous reconstruisons notre façade d'humanité, goutte de sang par goutte de sang.\n            </p>\n        </section>\n\n        <div class=\"flex justify-center\"><div class=\"w-16 h-px bg-[#7f1d1d]\"></div></div>\n\n        <section>\n            <h3 class=\"text-center text-xl text-[#e5e5e5] uppercase tracking-widest font-bold mb-6 border-b border-[#292524] pb-4\">Les Disciplines : Les Dons de Caïn</h3>\n            <p class=\"text-justify mb-4\">\n                La Vitae active également nos Disciplines — les pouvoirs surnaturels hérités de la malédiction de Caïn, affinés à travers des millénaires par chaque lignée vampirique. Domination des esprits mortels. Célérité surhumaine. Métamorphose en brume ou en bête. Occultation qui vous rend invisible aux regards mortels. Chaque Clan possède ses dons particuliers, ses manifestations uniques de la malédiction originelle.\n            </p>\n            <p class=\"text-justify mb-4\">\n                Mais chaque miracle exige son tribut de sang. Voulez-vous dominer l'esprit d'un mortel ? Cela consomme de la Vitae. Voulez-vous vous transformer en chauve-souris ? Plus encore. Voulez-vous invoquer des flammes mystiques ou faire exploser le cœur d'un ennemi à distance ? Le prix grimpe exponentiellement.\n            </p>\n            <p class=\"text-justify\">\n                C'est le paradoxe cruel de notre condition : plus vous devenez puissant, plus vous développez vos Disciplines, plus vous les utilisez fréquemment... et plus la Soif grandit en vous. Les Nouveau-nés peuvent subsister avec une victime par semaine. Les Anciens, ces dieux marchants avec leurs pouvoirs terrifiants, doivent se nourrir presque chaque nuit. Ils sont des divinités perpétuellement affamées, esclaves de la même soif qu'ils maîtrisent chez les autres.\n            </p>\n        </section>\n\n        <div class=\"flex justify-center\"><div class=\"w-16 h-px bg-[#7f1d1d]\"></div></div>\n\n        <section>\n            <h3 class=\"text-center text-xl text-[#991b1b] uppercase tracking-widest font-bold mb-6 border-b border-[#292524] pb-4\">Vinculum Sanguinis : L'Arme de la Gérontocratie</h3>\n            <p class=\"text-justify mb-6\">\n                Il existe un aspect de la Vitae vampirique plus dangereux que tout le reste. Plus insidieux que la Soif. Plus destructeur que le soleil. C'est le Lien de Sang, l'outil ultime de contrôle dans notre société, l'arme préférée des tyrans et des manipulateurs.\n            </p>\n            <p class=\"text-justify mb-6\">\n                Le sang de vampire est la substance la plus addictive jamais créée. Il surpasse l'héroïne, la cocaïne, le pouvoir politique, l'amour humain. Une seule goutte crée une dépendance qui fait paraître la toxicomanie mortelle comme une préférence alimentaire légère.\n            </p>\n            <p class=\"text-justify mb-6\">\n                Le processus est simple, presque élégant dans sa cruauté :\n            </p>\n            \n            <div class=\"space-y-8 pl-4 border-l-2 border-[#7f1d1d]\">\n                <div>\n                    <strong class=\"block text-[#e5e5e5] text-sm uppercase tracking-wider mb-2\">Première Gorgée — L'Attraction</strong>\n                    <p class=\"text-justify text-[#a8a29e]\">\n                        Buvez une fois du sang d'un vampire spécifique. Immédiatement, vous ressentez une attraction émotionnelle forte envers lui. Vous pensez à lui constamment. Il apparaît dans vos rêves. Vous cherchez des excuses pour être en sa présence. C'est subtil, presque naturel — on pourrait le confondre avec de l'amitié ou de l'admiration. Mais ce n'est pas naturel. C'est le début de la fin de votre libre arbitre.\n                    </p>\n                </div>\n                <div>\n                    <strong class=\"block text-[#e5e5e5] text-sm uppercase tracking-wider mb-2\">Deuxième Gorgée — L'Obsession</strong>\n                    <p class=\"text-justify text-[#a8a29e]\">\n                        Buvez une seconde fois, et il devient le centre de votre monde. Vous cherchez activement à lui plaire. Ses désirs deviennent vos priorités. Ses ennemis deviennent vos ennemis. Vous rationalisez ce comportement — \"c'est mon ami\", \"il mérite mon respect\", \"je lui dois ma loyauté\" — mais la vérité est que votre volonté s'érode. Vous êtes déjà plus son serviteur que son égal.\n                    </p>\n                </div>\n                <div>\n                    <strong class=\"block text-[#e5e5e5] text-sm uppercase tracking-wider mb-2\">Troisième Gorgée — L'Esclavage Total</strong>\n                    <p class=\"text-justify text-[#a8a29e]\">\n                        Buvez une troisième fois du sang du même vampire, et vous êtes lié. Complètement. Irrévocablement. Pendant au moins un an, possiblement plusieurs. Vous l'aimez plus que votre propre existence. Plus que votre Sire. Plus que vos idéaux, vos principes, votre dignité. Vous tueriez votre propre créateur pour un sourire de votre nouveau maître. Vous trahiriez tout et tous pour lui épargner le moindre désagrément.\n                    </p>\n                </div>\n            </div>\n\n            <p class=\"text-justify mt-6\">\n                Et le pire ? Vous savez que c'est artificiel. Une partie de vous, enfouie profondément, comprend que ce n'est pas de l'amour véritable mais une manipulation mystique. Mais cette connaissance ne change rien. L'esclavage persiste, immuable, jusqu'à ce que le Lien se dissolve lentement — un an par gorgée, si vous évitez complètement votre maître.\n            </p>\n            <p class=\"text-justify mt-4\">\n                C'est l'arme absolue de la gérontocratie vampirique. Les Princes lient leurs Shérifs. Les Primogènes lient leurs agents. Les Anciens construisent des réseaux entiers de serviteurs enchaînés par le sang, des pyramides de loyauté forcée qui garantissent leur pouvoir pendant des siècles.\n            </p>\n            <p class=\"text-justify mt-4 font-bold text-[#7f1d1d] text-center\">\n                Ne buvez jamais le sang d'un autre vampire à moins d'être absolument certain de pouvoir vous le permettre.\n            </p>\n        </section>\n\n        <div class=\"flex justify-center\"><div class=\"w-16 h-px bg-[#7f1d1d]\"></div></div>\n\n        <section>\n            <h3 class=\"text-center text-xl text-[#e5e5e5] uppercase tracking-widest font-bold mb-6 border-b border-[#292524] pb-4\">Maledictiones : Les Malédictions Éternelles</h3>\n            <p class=\"text-justify mb-8\">\n                Notre puissance vient avec des limitations absolues. Des faiblesses codées dans la malédiction de Caïn elle-même, impossibles à contourner, universelles parmi tous les Caïnites peu importe leur génération ou leur Clan.\n            </p>\n            \n            <div class=\"space-y-8\">\n                <div>\n                    <h4 class=\"text-[#7f1d1d] font-bold uppercase text-xs mb-2\">Le Soleil — La Fin Absolue</h4>\n                    <p class=\"text-justify text-[#a8a29e]\">\n                        La lumière du jour est notre antithèse existentielle. Il n'y a pas d'échappatoire, pas de crème solaire assez puissante, pas de sortilège assez robuste, pas de courage suffisant. L'exposition directe aux rayons du soleil provoque une combustion instantanée — non seulement de la chair, mais de l'âme maudite qui l'anime.\n                        Ce n'est pas une mort lente et poétique. C'est une immolation apocalyptique. En quelques secondes — littéralement, des secondes — vous êtes réduit en cendres. La Vitae qui vous anime s'enflamme comme de l'essence. Votre corps devient une torche hurlante. Et ensuite ? Rien. La Mort Finale. L'oblitération complète.\n                    </p>\n                    <p class=\"text-justify text-[#a8a29e] mt-2\">\n                        Même la lumière indirecte cause des dommages terribles. Un rayon de soleil filtrant à travers une fenêtre peut brûler la chair en quelques minutes. L'aube et le crépuscule sont dangereux. Seule la nuit complète est sûre. Planifiez toujours vos activités en tenant compte du lever du soleil. L'arrogance a incinéré plus de vampires que toutes les guerres de notre espèce combinées.\n                    </p>\n                </div>\n                <div>\n                    <h4 class=\"text-[#7f1d1d] font-bold uppercase text-xs mb-2\">Le Feu — La Terreur Primitive</h4>\n                    <p class=\"text-justify text-[#a8a29e]\">\n                        Le feu ordinaire ne nous détruit pas aussi rapidement que le soleil, mais il nous terrifie peut-être encore davantage. C'est ancré dans la Bête — cette partie animale, primitive de notre psyché. Devant des flammes nues, même un Ancien digne et stoïque peut perdre complètement la raison.\n                    </p>\n                    <p class=\"text-justify text-[#a8a29e] mt-2\">\n                        C'est ce que nous appelons la <em>Rötschreck</em>, la Terreur Rouge — une panique absolue, irraisonnée, qui court-circuite toute pensée rationnelle. Un vampire en proie à la Rötschreck devient un animal affolé. Il fuit en hurlant, piétinant alliés et ennemis indifféremment. La dignité, la stratégie, même la Mascarade — tout est abandonné dans cette terreur primale. C'est une faiblesse humiliante et universelle.\n                    </p>\n                </div>\n                <div>\n                    <h4 class=\"text-[#7f1d1d] font-bold uppercase text-xs mb-2\">La Torpeur — Le Sommeil Hanté</h4>\n                    <p class=\"text-justify text-[#a8a29e]\">\n                        Lorsque votre corps subit des dommages trop massifs pour que votre Vitae puisse les réparer — démembrement complet, exsanguination totale — mais que vous n'êtes pas complètement détruit, votre conscience n'a qu'une seule option : la Torpeur.\n                    </p>\n                    <p class=\"text-justify text-[#a8a29e] mt-2\">\n                        C'est le coma des immortels. Votre esprit se replie sur lui-même et sombre dans un sommeil qui peut durer des décennies ou des siècles. Pendant ce temps, votre corps gît immobile, guérissant avec une lenteur atroce, ressemblant de plus en plus à un cadavre desséché. La Torpeur n'est pas paisible. C'est un cauchemar lucide où le temps n'a plus de sens.\n                    </p>\n                    <p class=\"text-justify text-[#a8a29e] mt-2\">\n                        Le réveil est souvent brutal et confus. Vous vous éveillez affamé — désespérément, dangereusement affamé, la Bête hurlante. Le monde a changé pendant votre sommeil. Votre refuge a peut-être été découvert. Vos contacts sont morts. Les Anciens qui marchent parmi nous ont souvent passé plus de temps en Torpeur qu'éveillés. Ils sont des fantômes d'époques révolues.\n                    </p>\n                </div>\n            </div>\n        </section>\n\n        <div class=\"mt-12 pt-8 border-t border-[#292524] text-center\">\n             <p class=\"italic text-[#a8a29e] mb-4 text-justify\">\n                Voilà la physiologie de notre malédiction. Un corps mort maintenu en mouvement par du sang volé. Des pouvoirs divins achetés avec une faim perpétuelle. Des faiblesses absolues gravées dans notre essence même.\n             </p>\n             <p class=\"italic text-[#a8a29e] mb-8 text-justify\">\n                Vous n'êtes plus humain. Vous ne le serez plus jamais. Mais avec ce sang maudit vient une puissance que les mortels ne peuvent même pas imaginer. Utilisez-la sagement. Ou du moins, utilisez-la avec suffisamment de prudence pour survivre jusqu'à demain soir.\n             </p>\n             \n             <div class=\"mt-8\">\n               <p class=\"font-bold text-[#7f1d1d] uppercase tracking-widest\">— Valerius</p>\n               <p class=\"text-xs text-[#57534e] mt-2 font-serif italic\">\"Sanguis vita est, sed etiam catena\"<br/>(Le sang est vie, mais aussi chaîne)</p>\n           </div>\n        </div>\n\n      </div>"}, {"id": "society", "title": "La Société", "subtitle": "La Tour d'Ivoire et ses Mensonges", "content": "<div class=\"max-w-2xl mx-auto font-serif text-[#d6d3d1] space-y-12 leading-7 text-sm\">\n        \n        <p class=\"italic text-[#a8a29e] text-center mb-8\">\n           \"Bienvenue dans la plus grande mascarade de l'histoire — et je ne parle pas de notre secret collectif face aux mortels. Je parle de la Camarilla elle-même, cette institution vénérable qui se drape dans les oripeaux de la civilisation tout en orchestrant des siècles de manipulation, de trahison et de meurtre politique. Ils se nomment eux-mêmes la Tour d'Ivoire. C'est presque touchant dans son ironie : une tour construite sur des montagnes de cadavres, blanchie avec le sang de dissidents.\"\n        </p>\n\n        <section>\n            <h3 class=\"text-center text-xl text-[#e5e5e5] uppercase tracking-widest font-bold mb-6 border-b border-[#292524] pb-4\">Genèse d'une Tyrannie Organisée</h3>\n            <p class=\"text-justify mb-4\">\n                La Camarilla fut fondée en 1450, lors de la Convention de Thorns, dans les cendres de ce que nous appelons la Révolte Anarchiste. À cette époque, les Anciens — ces vampires millénaires qui contrôlaient l'Europe féodale comme leurs fiefs personnels — régnaient sans masque. Ils étaient des seigneurs vampiriques assumés, exigeant tribut et loyauté de leurs descendants et des mortels sous leur domination.\n            </p>\n            <p class=\"text-justify mb-4\">\n                Puis vint la Renaissance. L'imprimerie. L'éducation des masses. Soudainement, les mortels commencèrent à poser des questions gênantes. Les chasses aux sorcières proliférèrent — et si les mortels brûlaient principalement des innocents, ils attrapaient occasionnellement de véritables vampires dans leurs filets. Parallèlement, les jeunes vampires — fatigués d'être traités comme du bétail par leurs Sires antiques — se rebellèrent.\n            </p>\n            <p class=\"text-justify\">\n                La Révolte fut sanglante, chaotique, et ultimement... compromise. Les Anciens survivants comprirent qu'ils ne pouvaient plus régner ouvertement. Les rebelles réalisèrent qu'ils ne pouvaient pas vraiment gagner contre des créatures millénaires. Alors ils négocièrent. Ils créèrent la Camarilla, une organisation supposément égalitaire basée sur les Six Traditions. En pratique ? Les Anciens conservèrent leur pouvoir, ils l'exercèrent simplement avec plus de subtilité. Les rebelles les plus intransigeants refusèrent ce compromis et formèrent le Sabbat.\n            </p>\n        </section>\n\n        <div class=\"flex justify-center\"><div class=\"w-16 h-px bg-[#7f1d1d]\"></div></div>\n\n        <section>\n            <h3 class=\"text-center text-xl text-[#e5e5e5] uppercase tracking-widest font-bold mb-6 border-b border-[#292524] pb-4\">Les Six Traditions : La Loi Fondamentale</h3>\n            <p class=\"text-justify mb-6 text-[#a8a29e]\">\n                La Camarilla repose théoriquement sur six lois universelles, édictées — prétendument — par Caïn lui-même dans les nuits antédiluviennes. Chaque Prince les interprète à sa convenance, naturellement, mais elles forment le cadre juridique minimal de notre société.\n            </p>\n            \n            <div class=\"space-y-8\">\n                <div class=\"mb-6\">\n                  <h4 class=\"text-[#7f1d1d] font-bold uppercase text-xs mb-2\">Première Tradition : La Mascarade</h4>\n                  <p class=\"italic text-[#d6d3d1] mb-2 text-xs border-l-2 border-[#44403c] pl-4\">« Tu ne révéleras pas ta vraie nature à ceux qui ne sont pas du Sang. Ainsi faisant, tu renonceras à tes droits du Sang. »</p>\n                  <p class=\"text-justify text-[#a8a29e]\">C'est la loi suprême, celle qui justifie l'existence même de la Camarilla. Briser la Mascarade — révéler l'existence des vampires aux mortels — est puni par la Mort Finale, sans procès, sans appel. Un Shérif peut vous exécuter sur place s'il estime que vous avez compromis notre secret. La règle est simple : les mortels doivent croire que nous sommes des mythes. Dès qu'ils commencent à chercher des preuves réelles, des têtes commencent à rouler.</p>\n                </div>\n\n                <div class=\"mb-6\">\n                  <h4 class=\"text-[#7f1d1d] font-bold uppercase text-xs mb-2\">Deuxième Tradition : Le Domaine</h4>\n                  <p class=\"italic text-[#d6d3d1] mb-2 text-xs border-l-2 border-[#44403c] pl-4\">« Ton domaine est ta propre affaire. Tous te doivent respect en ton domaine. Nul ne peut contester ta parole dans ton domaine. »</p>\n                  <p class=\"text-justify text-[#a8a29e]\">Chaque territoire vampirique est contrôlé par un Prince. Il possède une autorité absolue sur son domaine. Sa parole est loi. Vous ne pouvez pas entrer dans le domaine d'un Prince sans vous présenter formellement. C'est une question d'étiquette fondamentale et de survie pratique. Un vampire non présenté est soit un espion, soit un imbécile — dans les deux cas, sa durée de vie est limitée.</p>\n                </div>\n\n                <div class=\"mb-6\">\n                  <h4 class=\"text-[#7f1d1d] font-bold uppercase text-xs mb-2\">Troisième Tradition : La Progéniture</h4>\n                  <p class=\"italic text-[#d6d3d1] mb-2 text-xs border-l-2 border-[#44403c] pl-4\">« Tu n'engendrera qu'avec la permission de ton Ancien. Si tu crées un autre sans la permission de ton Ancien, toi et ta Progéniture serez détruits. »</p>\n                  <p class=\"text-justify text-[#a8a29e]\">Créer un nouveau vampire — l'Étreinte — nécessite l'autorisation explicite du Prince de votre domaine. Point final. Cette règle sert à contrôler la population et empêcher les armées personnelles. Violer cette Tradition ? Vous et votre Infant non autorisé serez détruits. Souvent publiquement.</p>\n                </div>\n\n                <div class=\"mb-6\">\n                  <h4 class=\"text-[#7f1d1d] font-bold uppercase text-xs mb-2\">Quatrième Tradition : La Comptabilité</h4>\n                  <p class=\"italic text-[#d6d3d1] mb-2 text-xs border-l-2 border-[#44403c] pl-4\">« Ceux que tu crées sont tes propres Infants. Jusqu'à ce que ta Progéniture soit libérée, tu la commandera en toutes choses. Ses péchés sont tes péchés. »</p>\n                  <p class=\"text-justify text-[#a8a29e]\">Vous êtes responsable de votre Infant. Totalement. Absolument. Si votre création massacre un bus scolaire, c'est votre faute. Cette responsabilité dure jusqu'à la Libération — une cérémonie formelle où vous déclarez publiquement que votre Infant est désormais un vampire adulte.</p>\n                </div>\n\n                <div class=\"mb-6\">\n                  <h4 class=\"text-[#7f1d1d] font-bold uppercase text-xs mb-2\">Cinquième Tradition : L'Hospitalité</h4>\n                  <p class=\"italic text-[#d6d3d1] mb-2 text-xs border-l-2 border-[#44403c] pl-4\">« Honore le domaine d'un autre. Quand tu voyages, tu devras te présenter à celui qui règne là. Sans l'acceptation de ce dernier, tu n'es rien. »</p>\n                  <p class=\"text-justify text-[#a8a29e]\">Lorsque vous voyagez dans une nouvelle ville, vous devez vous présenter au Prince local. Immédiatement. Ne jamais se présenter est considéré comme une insulte grave ou un acte d'hostilité. Le Shérif sera envoyé pour vous \"escorter\" à l'Élysée.</p>\n                </div>\n\n                <div class=\"mb-6\">\n                  <h4 class=\"text-[#7f1d1d] font-bold uppercase text-xs mb-2\">Sixième Tradition : La Destruction</h4>\n                  <p class=\"italic text-[#d6d3d1] mb-2 text-xs border-l-2 border-[#44403c] pl-4\">« Tu es interdit de détruire un autre de ton espèce. Le droit de destruction appartient à ton Ancien seulement. Seul l'Ancien peut appeler une Chasse de Sang. »</p>\n                  <p class=\"text-justify text-[#a8a29e]\">Vous ne pouvez pas tuer un autre vampire. Seul le Prince possède le droit de condamner un vampire à mort. Lorsqu'il le fait, il déclare une Chasse de Sang — une saison de chasse ouverte sur la cible désignée. Tout vampire peut alors traquer et détruire la victime sans conséquence.</p>\n                </div>\n            </div>\n        </section>\n\n        <div class=\"flex justify-center\"><div class=\"w-16 h-px bg-[#7f1d1d]\"></div></div>\n\n        <section>\n            <h3 class=\"text-center text-xl text-[#e5e5e5] uppercase tracking-widest font-bold mb-6 border-b border-[#292524] pb-4\">La Hiérarchie : Qui Gouverne Réellement</h3>\n            <p class=\"text-justify mb-6\">\n                La Camarilla prétend être une société méritocratique. C'est un mensonge flagrant. C'est une gérontocratie — le règne des Anciens — déguisée avec un vernis de protocole démocratique.\n            </p>\n            \n            <div class=\"space-y-8\">\n                <div>\n                    <strong class=\"text-[#e5e5e5] text-sm uppercase tracking-wider block mb-2 border-b border-[#292524] pb-1 w-fit\">Le Prince</strong>\n                    <p class=\"text-justify text-[#a8a29e]\">\n                        Au sommet de la pyramide locale se trouve le Prince. C'est le souverain absolu du domaine. Il contrôle tout : les Traditions, les droits d'Étreinte, la Mascarade. Il peut vous accorder des faveurs ou vous détruire sur un caprice. Sa parole est absolue — tant qu'il peut l'imposer.\n                    </p>\n                </div>\n                <div>\n                    <strong class=\"text-[#e5e5e5] text-sm uppercase tracking-wider block mb-2 border-b border-[#292524] pb-1 w-fit\">Le Primogenium</strong>\n                    <p class=\"text-justify text-[#a8a29e]\">\n                        Le Conseil des Anciens. Un Primogène par Clan, choisi généralement par consensus. En théorie, ils conseillent le Prince. En pratique, c'est une arène où les Anciens jouent leurs jeux politiques séculaires. Un Prince qui ignore son Primogenium finit souvent destitué.\n                    </p>\n                </div>\n                <div>\n                    <strong class=\"text-[#e5e5e5] text-sm uppercase tracking-wider block mb-2 border-b border-[#292524] pb-1 w-fit\">Le Shérif</strong>\n                    <p class=\"text-justify text-[#a8a29e]\">\n                        Le bras armé du Prince. Il traque les violateurs de la Mascarade, exécute les condamnés et maintient l'ordre. C'est un travail brutal qui exige force et une certaine créativité sadique.\n                    </p>\n                </div>\n                <div>\n                    <strong class=\"text-[#e5e5e5] text-sm uppercase tracking-wider block mb-2 border-b border-[#292524] pb-1 w-fit\">Le Fouet</strong>\n                    <p class=\"text-justify text-[#a8a29e]\">\n                        Une position moins commune. Le travail du Fouet est simple : traquer et détruire la vermine vampirique (Caitiff, Sang-Faibles, vampires non autorisés). C'est un exterminateur.\n                    </p>\n                </div>\n                <div>\n                    <strong class=\"text-[#e5e5e5] text-sm uppercase tracking-wider block mb-2 border-b border-[#292524] pb-1 w-fit\">Le Gardien de l'Élysée</strong>\n                    <p class=\"text-justify text-[#a8a29e]\">\n                        Il supervise l'Élysée — les territoires neutres. Il maintient la paix, facilite les négociations et s'assure que le havre reste civilisé.\n                    </p>\n                </div>\n                <div>\n                    <strong class=\"text-[#e5e5e5] text-sm uppercase tracking-wider block mb-2 border-b border-[#292524] pb-1 w-fit\">Le Harpiste</strong>\n                    <p class=\"text-justify text-[#a8a29e]\">\n                        L'arbitre du statut social. Il décide qui est in et qui est out. Il tient les registres des Dettes. Ne sous-estimez jamais le pouvoir d'un Harpiste : ils peuvent vous transformer en paria social.\n                    </p>\n                </div>\n            </div>\n        </section>\n\n        <div class=\"flex justify-center\"><div class=\"w-16 h-px bg-[#7f1d1d]\"></div></div>\n\n        <section>\n            <h3 class=\"text-center text-xl text-[#e5e5e5] uppercase tracking-widest font-bold mb-6 border-b border-[#292524] pb-4\">L'Élysée : Le Théâtre de Notre Comédie</h3>\n            <p class=\"text-justify mb-4 text-[#a8a29e]\">\n                L'Élysée est tout territoire déclaré neutre par le Prince — musées, théâtres, clubs privés. C'est là que les vampires se rassemblent pour socialiser et comploter en sécurité.\n            </p>\n            <p class=\"text-justify mb-4 text-[#a8a29e]\">\n                <strong>Règle d'Or :</strong> La violence physique est strictement interdite. Lever la main contre un autre est une offense grave. La violence verbale, cependant, est encouragée. C'est l'arène où l'on s'affronte avec des mots.\n            </p>\n            <div class=\"bg-[#1c1917] p-6 border-l-2 border-[#7f1d1d]\">\n                <h4 class=\"text-[#d6d3d1] font-bold uppercase text-xs mb-4\">L'Étiquette Fondamentale</h4>\n                <ul class=\"list-disc pl-4 space-y-2 text-[#a8a29e]\">\n                    <li>S'habiller appropriément. Pas de jeans. Jamais.</li>\n                    <li>Saluer le Prince en premier dès votre entrée.</li>\n                    <li>Utiliser les titres appropriés (\"Mon Prince\", \"Primogène\").</li>\n                    <li>Ne jamais discuter d'affaires sordides ouvertement. Utilisez les alcôves.</li>\n                </ul>\n            </div>\n        </section>\n\n        <div class=\"flex justify-center\"><div class=\"w-16 h-px bg-[#7f1d1d]\"></div></div>\n\n        <section>\n            <h3 class=\"text-center text-xl text-[#e5e5e5] uppercase tracking-widest font-bold mb-6 border-b border-[#292524] pb-4\">La Préstation : La Monnaie Sociale</h3>\n            <p class=\"text-justify mb-4 text-[#a8a29e]\">\n                La Préstation est le système de dettes et de faveurs qui lubrifie notre société. C'est plus contraignant que l'argent mortel. Quand un vampire vous accorde une faveur, vous lui devez une Préstation. Refuser d'honorer une dette détruit votre réputation immédiatement.\n            </p>\n            <ul class=\"space-y-4\">\n                <li><strong class=\"text-[#d6d3d1]\">Mineure :</strong> Un petit service. Information, introduction.</li>\n                <li><strong class=\"text-[#d6d3d1]\">Majeure :</strong> Un service significatif. Sauver votre carrière, couvrir une infraction.</li>\n                <li><strong class=\"text-[#7f1d1d]\">Dette de Vie :</strong> Une dette existentielle. Quelqu'un vous a sauvé de la Mort Finale.</li>\n            </ul>\n        </section>\n\n        <div class=\"flex justify-center\"><div class=\"w-16 h-px bg-[#7f1d1d]\"></div></div>\n\n        <section>\n            <h3 class=\"text-center text-xl text-[#e5e5e5] uppercase tracking-widest font-bold mb-6 border-b border-[#292524] pb-4\">Le Cercle Intérieur et les Justicars</h3>\n            <p class=\"text-justify mb-4 text-[#a8a29e]\">\n                Au-dessus des Princes existe une structure supérieure. Le <strong>Cercle Intérieur</strong>, composé de sept vampires anciens dont l'identité est secrète, dirige la Camarilla depuis Vienne.\n            </p>\n            <p class=\"text-justify mb-4 text-[#a8a29e]\">\n                Les <strong>Justicars</strong> sont leurs agents exécutifs. Sept vampires extrêmement puissants qui voyagent pour faire respecter la volonté du Cercle. Un Justicar a autorité sur n'importe quel Prince. Ils sont assistés par des <strong>Archontes</strong>. Si un Justicar s'intéresse à vous, vous êtes probablement condamné.\n            </p>\n        </section>\n\n        <div class=\"mt-12 pt-8 border-t border-[#44403c] text-center\">\n             <p class=\"italic text-[#a8a29e] mb-4 text-justify\">\n                Permettez-moi de briser l'illusion : cette organisation n'est pas civilisée. C'est un système conçu par et pour les Anciens afin de maintenir leur pouvoir. Mais elle fonctionne. Elle maintient la Mascarade et empêche l'anarchie.\n             </p>\n             <p class=\"italic text-[#a8a29e] mb-8 text-justify\">\n                Apprenez les règles. Jouez le jeu. Souriez poliment au Prince même si vous le méprisez. La Camarilla est une cage dorée. Nous sommes tous prisonniers. Mais au moins, c'est une cage avec des barreaux que nous comprenons.\n             </p>\n             \n             <div class=\"mt-8\">\n               <p class=\"font-bold text-[#7f1d1d] uppercase tracking-widest\">— Valerius</p>\n               <p class=\"text-xs text-[#57534e] mt-2 font-serif italic\">\"Oderint dum metuant\"<br/>(Qu'ils me haïssent, pourvu qu'ils me craignent)</p>\n               <div class=\"mt-4 border border-[#292524] p-2 inline-block bg-[#0c0a09]\">\n                  <p class=\"text-[10px] text-[#a8a29e] italic\">Note marginale : Si vous trouvez ce texte trop cynique, attendez d'avoir survécu à votre premier siècle. Puis relisez-le. Il vous semblera naïvement optimiste.</p>\n               </div>\n           </div>\n        </div>\n\n      </div>"}, {"id": "clans", "title": "Les Lignées", "subtitle": "Le Sang Maudit des Pères", "content": "<div class=\"max-w-2xl mx-auto font-serif text-[#d6d3d1] space-y-16 leading-7 text-sm\">\n        \n        <p class=\"italic text-[#a8a29e] text-center mb-8 text-justify\">\n           \"Section IV du Codex Tenebrae... Vous êtes maintenant l'un d'entre nous, mais 'nous' n'est pas un monolithe uniforme. La malédiction de Caïn s'est fragmentée à travers les millénaires, tordue et déformée par chacun des treize Antédiluviens qui ont bu son sang. Chaque lignée — chaque Clan — porte une manifestation unique de cette damnation originelle. Votre Clan n'est pas simplement une affiliation sociale. C'est votre nature fondamentale, codée dans votre sang mort, aussi inaltérable que votre incapacité à voir le soleil.\n           <br/><br/>\n           Comprenez ceci : les stéréotypes de Clan que je vais décrire sont simultanément vrais et réducteurs. Oui, tous les Ventrues sont des aristocrates arrogants — mais certains le sont avec plus de subtilité que d'autres. Oui, tous les Malkaviens sont fous — mais notre folie prend des formes infiniment variées. Votre Clan vous prédispose, vous oriente, vous maudit d'une manière spécifique. Ce que vous faites avec cette malédiction détermine qui vous devenez vraiment.\"\n        </p>\n\n        <section>\n            <h3 class=\"text-center text-xl text-[#e5e5e5] uppercase tracking-widest font-bold mb-8 border-b border-[#292524] pb-4\">Les Sept Piliers de la Camarilla</h3>\n            \n            <!-- VENTRUE -->\n            <article class=\"mb-12 border-b border-[#292524] pb-12\">\n                <h4 class=\"text-2xl text-[#d6d3d1] font-bold uppercase tracking-widest mb-2 text-center\">Ventrue : Les Rois Autoproclamés</h4>\n                <p class=\"text-center italic text-[#78716c] mb-6 text-xs\">« Nous ne gouvernons pas par ambition, mais par nécessité. »</p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Les Ventrue se considèrent comme les seuls dirigeants capables de la Camarilla, et ils ont passé des millénaires à transformer cette prétention en réalité auto-réalisatrice. Ils recrutent exclusivement parmi l'élite mortelle — noblesse ancienne, PDG modernes, officiers militaires de haut rang, politiciens influents. Ils n'Étreignent jamais par caprice romantique ou simple opportunité. Chaque nouveau Ventrue est sélectionné pour son potentiel à contribuer au pouvoir collectif du Clan.\n                </p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Ils sont obsédés par la dignité, le protocole, le contrôle et la hiérarchie. Pour un Ventrue, le pouvoir n'est pas un but en soi — c'est un droit de naissance et un fardeau qu'ils portent avec une arrogance glaciale qui confine à l'art. Ils méprisent le chaos, l'émotion incontrôlée, et quiconque suggère que le mérite pourrait surpasser la lignée.\n                </p>\n                <div class=\"bg-[#1c1917] p-4 border-l-2 border-[#7f1d1d] mb-4\">\n                    <strong class=\"text-[#d6d3d1] text-xs uppercase block mb-1\">Leur Malédiction</strong>\n                    <p class=\"text-[#a8a29e] text-xs\">Les Ventrue souffrent d'un Goût Raffiné pathologique. Chaque Ventrue ne peut se nourrir que d'un type très spécifique de mortels — peut-être uniquement des vierges, ou uniquement des banquiers, ou uniquement des personnes de sang noble. Ce n'est pas une préférence. C'est une limitation physiologique absolue. Tout autre sang les fait vomir violemment, ne leur fournit aucune nutrition. Cette restriction peut être incroyablement handicapante dans des situations d'urgence.</p>\n                </div>\n                <div class=\"text-[#a8a29e] text-xs italic\">\n                    <strong class=\"text-[#57534e] uppercase not-italic\">Mon évaluation :</strong> Les Ventrue sont des bureaucrates vampiriques qui ont confondu longévité avec sagesse. Ils excellent à maintenir le statu quo précisément parce que tout changement menace leur position privilégiée. Cela dit, si vous avez besoin de quelqu'un pour organiser une structure de pouvoir stable, ou pour négocier un traité complexe, un Ventrue compétent est incomparable. Leur arrogance est leur faiblesse — ils sous-estiment systématiquement quiconque n'a pas un pedigree approprié.\n                </div>\n            </article>\n\n            <!-- TOREADOR -->\n            <article class=\"mb-12 border-b border-[#292524] pb-12\">\n                <h4 class=\"text-2xl text-[#d6d3d1] font-bold uppercase tracking-widest mb-2 text-center\">Toreador : Les Muses Corrompues</h4>\n                <p class=\"text-center italic text-[#78716c] mb-6 text-xs\">« La beauté est la seule vérité qui mérite l'immortalité. »</p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Les Toreador se nomment eux-mêmes les gardiens de la culture, les préservateurs de l'art, les seuls vampires qui comprennent véritablement ce que signifie être vivant. Ils vibrent pour la beauté — peintures, sculptures, musique, danse, et surtout, les mortels eux-mêmes transformés en œuvres d'art vivantes.\n                </p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Ils se vantent d'être le Clan le plus proche de l'Humanité, capables de ressentir des émotions que les autres vampires ont oubliées. C'est simultanément vrai et profondément trompeur. Oui, ils ressentent intensément. Mais cette intensité les transforme souvent en monstres plus cruels que n'importe quel Tzimisce. Ils jouent avec les mortels comme des enfants gâtés avec des poupées de porcelaine, les brisant quand ils deviennent ennuyeux, puis pleurant artistiquement sur les fragments.\n                </p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Ils craignent l'ennui plus que la Mort Finale. Un Toreador qui ne ressent plus rien est un Toreador qui sombrera dans la folie ou orchestrera des atrocités simplement pour sentir quelque chose. Leurs soirées mondaines sont légendaires — décadentes, excessives, souvent dégénérant en orgies de sang et d'art mêlés.\n                </p>\n                <div class=\"bg-[#1c1917] p-4 border-l-2 border-[#7f1d1d] mb-4\">\n                    <strong class=\"text-[#d6d3d1] text-xs uppercase block mb-1\">Leur Malédiction</strong>\n                    <p class=\"text-[#a8a29e] text-xs\">Les Toreador souffrent de ce que nous appelons la Fascination Esthétique. Confrontés à une beauté véritablement exceptionnelle — un chef-d'œuvre pictural, une symphonie parfaitement exécutée, un mortel d'une splendeur surhumaine — ils sont paralysés. Littéralement. Ils entrent en transe contemplative, incapables de détacher leur attention, vulnérables à toute attaque. J'ai vu un Primogène Toreador manquer une réunion cruciale parce qu'il était hypnotisé par un coucher de soleil aperçu à travers une fenêtre teintée.</p>\n                </div>\n                <div class=\"text-[#a8a29e] text-xs italic\">\n                    <strong class=\"text-[#57534e] uppercase not-italic\">Mon évaluation :</strong> Les Toreador sont des hédonistes qui ont transformé leur addiction à la sensation en philosophie. Ils sont invaluables comme diplomates, infiltrateurs sociaux, et créateurs de couvertures élaborées. Leur réseau social est généralement le plus étendu de n'importe quelle Cour. Mais ne leur confiez jamais quelque chose qui exige discipline ou sacrifice à long terme — ils seront distraits par la prochaine nouveauté brillante avant même d'avoir commencé.\n                </div>\n            </article>\n\n            <!-- TREMERE -->\n            <article class=\"mb-12 border-b border-[#292524] pb-12\">\n                <h4 class=\"text-2xl text-[#d6d3d1] font-bold uppercase tracking-widest mb-2 text-center\">Tremere : Les Usurpateurs Sanglants</h4>\n                <p class=\"text-center italic text-[#78716c] mb-6 text-xs\">« La connaissance est pouvoir. Le pouvoir est survie. La survie justifie tout. »</p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Les Tremere sont le Clan le plus jeune et le plus universellement détesté de la Camarilla. Ils ne sont pas nés de la malédiction de Caïn — ils l'ont volée. Au XIIe siècle, un cercle de mages hermétiques mortels, réalisant que leur mortalité approchait et terrifiés par la mort, a accompli un rituel alchimique d'une impiété monumentale. Ils ont capturé un Antédiluvien — Saulot des Salubri — et ont bu son essence jusqu'à la dernière goutte, devenant ainsi vampires par pure force de volonté et de magie noire.\n                </p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Cet acte d'Amaranthe cosmique a créé une lignée entière. Les Tremere sont organisés en une pyramide de sang rigide, une hiérarchie militaro-mystique où l'obéissance aux supérieurs est absolue. Chaque Tremere est lié par le sang à son supérieur immédiat, qui est lié au sien, jusqu'au sommet où siègent les sept Conseillers de Vienne dans leur Chantry forteresse.\n                </p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Ils gardent jalousement les secrets de la Thaumaturgie — la Magie du Sang, leur discipline unique. C'est une sorcellerie vampirique qui leur permet d'accomplir des miracles et des abominations : faire bouillir le sang d'un ennemi dans ses veines, contrôler les flammes, créer des objets enchantés, et invoquer des pactes avec des entités démoniaques. Un Thaumaturge compétent est l'équivalent vampirique d'une arme nucléaire tactique.\n                </p>\n                <div class=\"bg-[#1c1917] p-4 border-l-2 border-[#7f1d1d] mb-4\">\n                    <strong class=\"text-[#d6d3d1] text-xs uppercase block mb-1\">Leur Malédiction</strong>\n                    <p class=\"text-[#a8a29e] text-xs\">Les Tremere sont tous liés au sang à leur Clan lui-même, au niveau le plus fondamental. Cette loyauté forcée les rend incapables de vraie trahison interne — mais elle les transforme aussi en esclaves de leur hiérarchie. Un Tremere qui tente de quitter le Clan découvre rapidement que son sang lui-même se rebelle. De plus, leur vol de l'immortalité les a marqués — d'autres vampires ressentent instinctivement qu'il y a quelque chose de faux chez eux.</p>\n                </div>\n                <div class=\"text-[#a8a29e] text-xs italic\">\n                    <strong class=\"text-[#57534e] uppercase not-italic\">Mon évaluation :</strong> Les Tremere ont transformé la paranoia en système organisationnel. Personne ne leur fait confiance, et ils ne font confiance à personne — même entre eux. Mais leur discipline, leur organisation, et leur maîtrise de la Thaumaturgie les rendent indispensables. Si vous avez besoin de quelque chose d'impossible accompli, trouvez un Tremere. Assurez-vous simplement d'avoir un plan de sortie avant qu'ils ne décident que vous êtes devenu une menace à leur sécurité.\n                </div>\n            </article>\n\n            <!-- MALKAVIEN -->\n            <article class=\"mb-12 border-b border-[#292524] pb-12\">\n                <h4 class=\"text-2xl text-[#d6d3d1] font-bold uppercase tracking-widest mb-2 text-center\">Malkavien : Les Prophètes Brisés</h4>\n                <p class=\"text-center italic text-[#78716c] mb-6 text-xs\">« Nous voyons ce qui est caché. C'est notre malédiction et notre don. »</p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Mon propre Clan. Permettez-moi donc d'être particulièrement honnête : nous sommes tous fous. Chaque. Dernier. Malkavien. Caïn — ou notre Antédiluvien, Malkav — a brisé quelque chose de fondamental dans notre esprit au moment de notre création. L'Étreinte n'octroie pas la folie aux Malkaviens ; elle la révèle, l'amplifie, la transforme en quelque chose de surnaturel.\n                </p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Mais voici ce que les autres Clans ne comprennent pas : cette folie nous connecte. Nous partageons ce que certains appellent le Réseau de la Folie ou la Toile de Malkav — une conscience collective invisible qui relie tous les Malkaviens vivants. Nous entendons des murmures, recevons des visions, percevons des motifs que la rationalité obscurcit. Nous sommes les oracles que personne ne veut consulter parce que nos prophéties arrivent sous forme d'énigmes terrifiantes, de rires hystériques, ou de graffitis cryptiques.\n                </p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Nos démences varient infiniment. Schizophrénie, paranoïa, dépression clinique, personnalités multiples, synesthésie, visions prémonitoires, obsessions compulsives — chaque Malkavien est unique dans sa brisure. Certains sont fonctionnels, presque indistinguables des autres vampires jusqu'à ce qu'un détail révèle la fracture. D'autres sont des épaves hurlantes que leurs Sires maintiennent enchaînées dans des caves.\n                </p>\n                <div class=\"bg-[#1c1917] p-4 border-l-2 border-[#7f1d1d] mb-4\">\n                    <strong class=\"text-[#d6d3d1] text-xs uppercase block mb-1\">Leur Malédiction</strong>\n                    <p class=\"text-[#a8a29e] text-xs\">Chaque Malkavien souffre d'au moins un Dérangement Mental permanent et incurable. Ce n'est pas une affectation théâtrale — c'est une distorsion fondamentale de notre perception de la réalité. Ma propre affliction est la Graphomanie Prophétique : je suis compulsé à documenter, archiver, compiler tout le savoir vampirique que je peux trouver, convaincu que la Géhenne approche et que ces archives seront essentielles à la survie des quelques élus. Suis-je réellement prescient ou simplement obsessionnel ? La distinction devient floue.</p>\n                </div>\n                <div class=\"text-[#a8a29e] text-xs italic\">\n                    <strong class=\"text-[#57534e] uppercase not-italic\">Mon évaluation :</strong> Nous sommes les fous utiles de la Camarilla. On nous tolère parce que nos intuitions sont parfois remarquablement précises, nos perceptions parfois révélatrices. Mais on ne nous fait jamais vraiment confiance, on ne nous donne jamais de pouvoir réel. Et peut-être que c'est préférable ainsi — un Malkavien au pouvoir absolu serait soit un tyran éclairé, soit un désastre apocalyptique, et il n'y a aucun moyen de prédire lequel avant qu'il ne soit trop tard.\n                </div>\n            </article>\n\n            <!-- NOSFERATU -->\n            <article class=\"mb-12 border-b border-[#292524] pb-12\">\n                <h4 class=\"text-2xl text-[#d6d3d1] font-bold uppercase tracking-widest mb-2 text-center\">Nosferatu : Les Courtiers de l'Ombre</h4>\n                <p class=\"text-center italic text-[#78716c] mb-6 text-xs\">« Nous voyons tout. Nous oublions rien. Et nous n'avons rien à perdre. »</p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    L'Étreinte Nosferatu est une malédiction visible, une transformation horrifique qui détruit toute beauté physique que la victime possédait. Les os se tordent. La chair se déforme. Les traits deviennent grotesques, monstrueux, le genre de visage qui provoque instinctivement la peur et le dégoût chez les mortels. Chaque Nosferatu est unique dans sa laideur, mais tous sont indéniablement, irrévocablement hideux.\n                </p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Cette malédiction les force dans les marges de la société vampirique. Ils vivent dans les égouts, les tunnels abandonnés, les sous-sols oubliés. Ils ne peuvent pas se promener librement parmi les mortels sans briser immédiatement la Mascarade. Ils sont exclus des Élysées élégants, méprisés par les Toreadors, évités par les Ventrues.\n                </p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Mais cette exclusion a transformé les Nosferatu en quelque chose d'extraordinaire : les maîtres espions de notre espèce. Vivant dans les infrastructures invisibles des villes, ils observent, écoutent, enregistrent tout. Rien ne se passe dans un domaine sans qu'au moins un Nosferatu ne l'apprenne. Ils sont devenus les courtiers en information ultimes, vendant des secrets à tous les camps, maintenant des réseaux qui transcendent les affiliations sectaires.\n                    Et voici ce qui les rend véritablement dangereux : ils sont incroyablement loyaux les uns envers les autres. Le Réseau Nosferatu partage l'information entre tous les membres du Clan, globalement. Offensez un Nosferatu à Tokyo, et celui de Londres le saura avant la semaine suivante. Ils protègent leur propre avec une férocité que les autres Clans envient secrètement.\n                </p>\n                <div class=\"bg-[#1c1917] p-4 border-l-2 border-[#7f1d1d] mb-4\">\n                    <strong class=\"text-[#d6d3d1] text-xs uppercase block mb-1\">Leur Malédiction</strong>\n                    <p class=\"text-[#a8a29e] text-xs\">Les Nosferatu sont marqués par une Hideusité Surnaturelle absolue et permanente. Aucune quantité de maquillage, de chirurgie, ou même de magie ne peut masquer leur nature monstrueuse. Leur Apparence est toujours zéro — techniquement, négative. Les mortels fuient instinctivement. Les animaux deviennent hystériques. Même les autres vampires trouvent difficile de les regarder directement pendant longtemps.</p>\n                </div>\n                <div class=\"text-[#a8a29e] text-xs italic\">\n                    <strong class=\"text-[#57534e] uppercase not-italic\">Mon évaluation :</strong> Ne sous-estimez jamais un Nosferatu. Jamais. Ils sont laideur à l'extérieur mais souvent les plus honorables à l'intérieur. Si vous avez besoin d'un allié fiable, un Nosferatu qui vous doit une Préstation est plus précieux qu'une douzaine de Ventrues faussement loyaux. Et si vous en faites votre ennemi ? Préparez-vous à ce que chaque secret honteux de votre existence soit exposé publiquement.\n                </div>\n            </article>\n\n            <!-- BRUJAH -->\n            <article class=\"mb-12 border-b border-[#292524] pb-12\">\n                <h4 class=\"text-2xl text-[#d6d3d1] font-bold uppercase tracking-widest mb-2 text-center\">Brujah : Les Philosophes Tombés</h4>\n                <p class=\"text-center italic text-[#78716c] mb-6 text-xs\">« Nous nous souvenons de Carthage. Nous n'oublions pas. Nous ne pardonnons pas. »</p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Les Brujah sont une tragédie incarnée. Ils furent autrefois les Rois-Philosophes de l'Antiquité, les bâtisseurs de Carthage — cette utopie légendaire où vampires et mortels coexistaient dans une harmonie relative, où le savoir était vénéré et la justice appliquée équitablement. Puis Rome est venue. Rome, dirigée secrètement par les Ventrues, a détruit Carthage si complètement que même son emplacement exact est débattu par les historiens.\n                </p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Cette destruction a brisé quelque chose dans le Clan Brujah. Ils sont devenus des révolutionnaires perpétuels, des anarchistes idéalistes, des rebelles sans cause cohérente. Aujourd'hui, ils recrutent parmi les punks, les activistes, les émeutiers, quiconque porte la flamme de la rébellion. Ils sont passionnés, éloquents, capables de discours enflammés qui inspirent ou terrifient.\n                </p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Mais ils sont tragiquement, pathétiquement instables. Leur passion se transforme instantanément en rage. Leurs idéaux s'effondrent face à la moindre contradiction. Ils forment le cœur combattant du Mouvement Anarchiste, contestant constamment l'autorité des Princes, défiant la hiérarchie de la Camarilla — tout en étant totalement incapables de s'organiser eux-mêmes suffisamment longtemps pour construire une alternative viable.\n                </p>\n                <div class=\"bg-[#1c1917] p-4 border-l-2 border-[#7f1d1d] mb-4\">\n                    <strong class=\"text-[#d6d3d1] text-xs uppercase block mb-1\">Leur Malédiction</strong>\n                    <p class=\"text-[#a8a29e] text-xs\">Les Brujah souffrent d'une Rage Incontrôlable. Leur colère est toujours à la surface, prête à exploser au moindre prétexte. Ils entrent en Frénésie — l'état où la Bête prend le contrôle complet — plus facilement que n'importe quel autre Clan. Un Brujah offensé peut littéralement démolir une salle d'Élysée en quelques secondes, détruisant des décennies de relations diplomatiques avec ses poings.</p>\n                </div>\n                <div class=\"text-[#a8a29e] text-xs italic\">\n                    <strong class=\"text-[#57534e] uppercase not-italic\">Mon évaluation :</strong> Les Brujah sont des idéalistes magnifiques et des pragmatistes désastreux. Leurs cœurs sont au bon endroit — si un vampire peut avoir un \"cœur\" métaphorique — mais leur incapacité à contrôler leur tempérament les rend dangereux pour eux-mêmes et leurs alliés. Si vous voulez un guerrier féroce ou un orateur inspirant, recrutez un Brujah. Si vous voulez quelqu'un qui peut planifier à long terme sans exploser de rage à mi-chemin ? Regardez ailleurs.\n                </div>\n            </article>\n\n            <!-- GANGREL -->\n            <article class=\"mb-12 border-b border-[#292524] pb-12\">\n                <h4 class=\"text-2xl text-[#d6d3d1] font-bold uppercase tracking-widest mb-2 text-center\">Gangrel : Les Prédateurs Sauvages</h4>\n                <p class=\"text-center italic text-[#78716c] mb-6 text-xs\">« La civilisation est une cage. Nous préférons la liberté. »</p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Les Gangrel sont les plus animaux de notre espèce. Ils se sentent plus à l'aise parmi les loups que parmi les hommes, plus chez eux dans les parcs sauvages que dans les gratte-ciels. Ils rejettent activement la politique urbaine complexe, les intrigues de Cour, les jeux sociaux de l'Élysée. Pour un Gangrel, tout cela est une perte de temps — du théâtre inutile quand la seule chose qui importe vraiment est la survie.\n                </p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Ce sont des prédateurs ultimes. Leur connexion avec la Bête est plus forte, plus fluide que celle des autres Clans. Ils peuvent se transformer en animaux — loups, chauves-souris, corbeaux, brume elle-même. Ils communiquent avec les bêtes, les commandent même. Leur instinct de chasse est surhumain, capable de traquer une proie à travers une ville entière en suivant des traces que personne d'autre ne peut percevoir.\n                </p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Traditionnellement, les Gangrel sont nomades. Ils voyagent constamment, refusant de s'ancrer dans un domaine spécifique. Quand ils doivent dormir, ils s'enfouissent littéralement dans la terre nue — pas dans des cercueils élégants, mais simplement creusant un trou et laissant la terre les recouvrir. Beaucoup servent comme mercenaires, éclaireurs, ou simplement restent à l'écart de notre société entièrement.\n                </p>\n                <div class=\"bg-[#1c1917] p-4 border-l-2 border-[#7f1d1d] mb-4\">\n                    <strong class=\"text-[#d6d3d1] text-xs uppercase block mb-1\">Leur Malédiction</strong>\n                    <p class=\"text-[#a8a29e] text-xs\">Chaque fois qu'un Gangrel Frénésie — et ils le font régulièrement, étant si proches de leur nature bestiale — ils développent une Caractéristique Animale permanente. Des yeux de chat. Des griffes rétractiles. De la fourrure. Des crocs proéminents. Des oreilles pointues. Avec l'âge, les Gangrel anciens deviennent de plus en plus inhumains physiquement, jusqu'à ressembler davantage à des chimères qu'à des vampires.</p>\n                </div>\n                <div class=\"text-[#a8a29e] text-xs italic\">\n                    <strong class=\"text-[#57534e] uppercase not-italic\">Mon évaluation :</strong> Les Gangrel sont pragmatiques jusqu'à l'austérité. Ils ne mentent généralement pas — pas par vertu morale, mais parce qu'ils trouvent la tromperie épuisante et inutile. Si vous avez besoin d'un guide dans des territoires dangereux, d'un garde du corps qui ne vous trahira pas, ou simplement de quelqu'un qui ne participera pas aux jeux politiques, un Gangrel est votre meilleur choix. Mais ne vous attendez pas à de la sophistication sociale ou à de la patience avec les rituels de Cour.\n                </div>\n            </article>\n        </section>\n\n        <section>\n            <h3 class=\"text-center text-xl text-[#e5e5e5] uppercase tracking-widest font-bold mb-8 border-b border-[#292524] pb-4\">Les Clans Indépendants</h3>\n\n            <!-- LASOMBRA -->\n            <article class=\"mb-12 border-b border-[#292524] pb-12\">\n                <h4 class=\"text-2xl text-[#d6d3d1] font-bold uppercase tracking-widest mb-2 text-center\">Lasombra : Les Maîtres des Ténèbres</h4>\n                <p class=\"text-center italic text-[#78716c] mb-6 text-xs\">« Le pouvoir appartient à ceux assez forts pour le prendre et le conserver. »</p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Les Lasombra sont des aristocrates impitoyables, des darwinistes sociaux qui croient que seuls les plus forts méritent de survivre. Traditionnellement, ils forment l'épine dorsale du Sabbat — la secte rivale de la Camarilla — où ils occupent généralement les positions de leadership.\n                </p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Ils possèdent un pouvoir terrifiant : la capacité de contrôler les ténèbres vivantes elles-mêmes. Pas simplement l'absence de lumière, mais une obscurité tangible, quasi-sentiente qu'ils peuvent façonner en tentacules, en armes, en boucliers. Ils peuvent étouffer leurs ennemis avec des ombres, créer des zones d'obscurité absolue, ou se fondre dans les ténèbres pour devenir invisibles.\n                </p>\n                <div class=\"bg-[#1c1917] p-4 border-l-2 border-[#7f1d1d] mb-4\">\n                    <strong class=\"text-[#d6d3d1] text-xs uppercase block mb-1\">Leur Malédiction</strong>\n                    <p class=\"text-[#a8a29e] text-xs\">Les Lasombra n'ont aucun reflet. Ni dans les miroirs, ni dans l'eau, ni sur les surfaces réfléchissantes modernes comme les écrans de téléphone. Les caméras ne les capturent pas non plus correctement — ils apparaissent flous, distordus, ou simplement absents. À l'ère de la surveillance omniprésente et des selfies, cette malédiction est devenue paradoxalement plus handicapante.</p>\n                </div>\n                <div class=\"text-[#a8a29e] text-xs italic\">\n                    <strong class=\"text-[#57534e] uppercase not-italic\">Mon évaluation :</strong> Les Lasombra sont des manipulateurs-nés, dénués de sentimentalité ou de pitié. Ils voient les relations comme des transactions de pouvoir, les alliances comme temporaires et opportunistes. Si vous devez traiter avec un Lasombra, n'espérez jamais de loyauté — seulement un respect mutuel basé sur la force. Et si un jour vous devenez faible ? Ils vous abandonneront ou vous consumeront sans hésitation.\n                </div>\n            </article>\n\n            <!-- TZIMISCE -->\n            <article class=\"mb-12 border-b border-[#292524] pb-12\">\n                <h4 class=\"text-2xl text-[#d6d3d1] font-bold uppercase tracking-widest mb-2 text-center\">Tzimisce : Les Dragons de l'Est</h4>\n                <p class=\"text-center italic text-[#78716c] mb-6 text-xs\">« La chair est argile. Nous sommes les sculpteurs. »</p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Les Tzimisce sont peut-être les vampires les plus inhumains, les plus aliénés de toute humanité résiduelle. Anciens seigneurs féodaux des Carpates, ils règnent encore sur des domaines isolés d'Europe de l'Est comme des nobles gothiques sortis d'un cauchemar médiéval.\n                </p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Leur discipline signature est la Vicissitude — la capacité de sculpter la chair et les os comme de l'argile. Ils peuvent transformer leur propre corps en armes organiques, créer des serviteurs grotesques en remodelant des mortels captifs, ou simplement défigurer leurs ennemis pour leur amusement artistique pervers. Un Tzimisce ancien ressemble rarement à quelque chose d'identifiable comme humain.\n                </p>\n                <div class=\"bg-[#1c1917] p-4 border-l-2 border-[#7f1d1d] mb-4\">\n                    <strong class=\"text-[#d6d3d1] text-xs uppercase block mb-1\">Leur Malédiction</strong>\n                    <p class=\"text-[#a8a29e] text-xs\">Les Tzimisce doivent dormir entourés par deux poignées de terre de leur terre natale. Pas n'importe quelle terre — spécifiquement celle du lieu de leur mort mortelle. Sans elle, ils ne peuvent pas se reposer, sombrant dans une torpeur agitée qui les affaiblit rapidement. Cette dépendance limite sévèrement leur mobilité.</p>\n                </div>\n                <div class=\"text-[#a8a29e] text-xs italic\">\n                    <strong class=\"text-[#57534e] uppercase not-italic\">Mon évaluation :</strong> Évitez les Tzimisce si possible. Leur psychologie est fondamentalement incompréhensible pour ceux d'entre nous qui conservons encore des traces d'humanité. Ils voient les corps — y compris le leur — comme des outils à modifier, pas comme des identités sacrées. Leur hospitalité légendaire est réelle mais terrifiante — vous serez traité comme un invité sacré, puis peut-être transformé en meuble vivant si vous les offensez.\n                </div>\n            </article>\n\n            <!-- BANU HAQIM -->\n            <article class=\"mb-12 border-b border-[#292524] pb-12\">\n                <h4 class=\"text-2xl text-[#d6d3d1] font-bold uppercase tracking-widest mb-2 text-center\">Banu Haqim : Les Juges Silencieux</h4>\n                <p class=\"text-center italic text-[#78716c] mb-6 text-xs\">« Le sang des coupables est notre jugement. »</p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Anciennement connus sous le nom d'Assamites, les Banu Haqim sont des guerriers-juges, des assassins philosophiques qui se considèrent comme les exécuteurs de la justice divine. Ils furent autrefois maudits par les Tremeres — leur sang empoisonné pour les empêcher de pratiquer la Diablerie — mais récemment, cette malédiction a été brisée.\n                </p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Ils boivent traditionnellement le sang d'autres vampires comme acte rituel de jugement. Pour eux, l'Amaranthe n'est pas un crime mais un sacrement, une façon de purger les indignes de notre espèce. Leur peau fonce progressivement avec l'âge et la consommation de Vitae vampirique, les anciens devenant presque d'un noir d'ébène.\n                </p>\n                <div class=\"bg-[#1c1917] p-4 border-l-2 border-[#7f1d1d] mb-4\">\n                    <strong class=\"text-[#d6d3d1] text-xs uppercase block mb-1\">Leur Malédiction</strong>\n                    <p class=\"text-[#a8a29e] text-xs\">Historiquement, leur sang était empoisonné — boire la Vitae d'un autre vampire les rendait malades. Cette malédiction a été levée récemment, ce qui a terrrifié la Camarilla. Maintenant, leur vraie malédiction est une Soif de Sang Vampirique — une envie compulsive de consommer leurs propres semblables qui peut devenir écrasante.</p>\n                </div>\n                <div class=\"text-[#a8a29e] text-xs italic\">\n                    <strong class=\"text-[#57534e] uppercase not-italic\">Mon évaluation :</strong> Les Banu Haqim opèrent selon un code d'honneur complexe que peu d'étrangers comprennent vraiment. Ils sont loyaux à leurs contrats, efficaces dans l'exécution, et étonnamment philosophiques pour des assassins. Récemment, une faction a rejoint la Camarilla officiellement, ce qui a créé des tensions considérables — difficile de faire confiance à un Clan qui a passé des millénaires à assassiner des membres de la Camarilla sur commande.\n                </div>\n            </article>\n\n            <!-- LE MINISTERE -->\n            <article class=\"mb-12 border-b border-[#292524] pb-12\">\n                <h4 class=\"text-2xl text-[#d6d3d1] font-bold uppercase tracking-widest mb-2 text-center\">Le Ministère : Les Corrupteurs de Set</h4>\n                <p class=\"text-center italic text-[#78716c] mb-6 text-xs\">« La vraie liberté vient d'embrasser ses chaînes. »</p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Anciennement le Clan Followers of Set, rebaptisés Le Ministère dans une tentative de relations publiques, ces vampires vénèrent le dieu égyptien Set — ou du moins, une version vampirique de lui. Leur théologie est complexe et probablement délirante, impliquant la libération de Set d'une prison mystique et la \"libération\" de toutes les âmes de leurs inhibitions.\n                </p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    En pratique, ils sont des corrupteurs professionnels. Ils trafiquent drogues, vices, secrets, tout ce qui peut asservir ou compromettre autrui. Leur objectif n'est pas simplement de gagner du pouvoir mais de démontrer que tout le monde a un prix, que toute vertu peut être corrompue. Ils voient cela comme un service spirituel — en révélant votre faiblesse, ils vous \"libèrent\" de l'illusion de votre propre pureté.\n                </p>\n                <div class=\"bg-[#1c1917] p-4 border-l-2 border-[#7f1d1d] mb-4\">\n                    <strong class=\"text-[#d6d3d1] text-xs uppercase block mb-1\">Leur Malédiction</strong>\n                    <p class=\"text-[#a8a29e] text-xs\">Le Ministère craint la lumière intensément. Même les lumières artificielles brillantes les affaiblissent et leur causent de l'inconfort. Ils prennent des dommages aggravés de toutes sources lumineuses, pas seulement le soleil. Un Setite pris dans un projecteur se comportera presque comme s'il était exposé au soleil lui-même.</p>\n                </div>\n                <div class=\"text-[#a8a29e] text-xs italic\">\n                    <strong class=\"text-[#57534e] uppercase not-italic\">Mon évaluation :</strong> Le Ministère est utile si vous avez besoin d'acquérir quelque chose d'illégal ou de compromettre quelqu'un. Ils excellent dans les services que personne d'autre ne veut toucher. Mais ne les laissez jamais connaître vos faiblesses — ils les collectionneront et les exploiteront éventuellement. Et leur théologie est... disons \"préoccupante\" même selon nos standards dépravés.\n                </div>\n            </article>\n\n            <!-- HECATA -->\n            <article class=\"mb-12 border-b border-[#292524] pb-12\">\n                <h4 class=\"text-2xl text-[#d6d3d1] font-bold uppercase tracking-widest mb-2 text-center\">Hecata : Les Nécromanciens Familiaux</h4>\n                <p class=\"text-center italic text-[#78716c] mb-6 text-xs\">« La mort n'est pas la fin. C'est une ressource. »</p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Les Hecata sont une alliance récente de plusieurs lignées nécromantiques — principalement les Giovanni, une famille mafieuse incestueuse italienne, mais incluant d'autres praticiens de la magie de la mort. Ils asservissent les fantômes, trafiquent avec les morts, et maintiennent généralement un monopole inquiétant sur tout ce qui concerne la nécromancie.\n                </p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Les Giovanni — le cœur de ce Clan — sont notoirement insulaires. Ils n'Étreignent presque exclusivement que des membres de leur propre famille mortelle, créant des générations entières de vampires consanguins. Ils contrôlent des entreprises légitimes comme couverture et opèrent essentiellement comme une organisation criminelle vampirique.\n                </p>\n                <div class=\"bg-[#1c1917] p-4 border-l-2 border-[#7f1d1d] mb-4\">\n                    <strong class=\"text-[#d6d3d1] text-xs uppercase block mb-1\">Leur Malédiction</strong>\n                    <p class=\"text-[#a8a29e] text-xs\">Le Baiser Hecata — l'acte de se nourrir — est atrocement, insupportablement douloureux pour la victime. Alors que le Baiser des autres vampires provoque extase et euphorie, rendant les victimes complaisantes, le Baiser Hecata cause une agonie pure. Les mortels hurlent, se débattent, tentent désespérément d'échapper. Cela rend l'alimentation discrète presque impossible.</p>\n                </div>\n                <div class=\"text-[#a8a29e] text-xs italic\">\n                    <strong class=\"text-[#57534e] uppercase not-italic\">Mon évaluation :</strong> Les Hecata sont techniquement neutres dans la Jyhad, mais leur neutralité est celle d'un requin — ils travailleront avec n'importe qui tant que c'est profitable. Leur nécromancie les rend précieux pour certains services spécialisés, mais leur nature familiale insulaire signifie qu'ils ne font vraiment confiance qu'à leur propre sang. Et leur réputation mafieuse est entièrement méritée.\n                </div>\n            </article>\n\n            <!-- RAVNOS -->\n            <article class=\"mb-12 border-b border-[#292524] pb-12\">\n                <h4 class=\"text-2xl text-[#d6d3d1] font-bold uppercase tracking-widest mb-2 text-center\">Ravnos : Les Illusionnistes Errants</h4>\n                <p class=\"text-center italic text-[#78716c] mb-6 text-xs\">« La réalité est négociable. La vérité est ce que nous décidons. »</p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Les Ravnos étaient autrefois un Clan nombreux de nomades et d'illusionnistes, liés culturellement aux communautés Romani et aux traditions d'Asie du Sud. Puis, en 1999, leur Antédiluvien s'est réveillé. Ce qui a suivi fut la Semaine des Cauchemars — une apocalypse miniature où cet ancien a dévoré littéralement des milliers de Ravnos à travers le monde avant d'être finalement détruit par des armes nucléaires et des satellites solaires.\n                </p>\n                <p class=\"text-justify text-[#a8a29e] mb-4\">\n                    Les survivants sont rares, traumatisés, et fondamentalement changés. Ils créent des illusions d'une complexité stupéfiante, manipulent les perceptions, tissent des chimères qui semblent plus réelles que la réalité elle-même.\n                </p>\n                <div class=\"bg-[#1c1917] p-4 border-l-2 border-[#7f1d1d] mb-4\">\n                    <strong class=\"text-[#d6d3d1] text-xs uppercase block mb-1\">Leur Malédiction</strong>\n                    <p class=\"text-[#a8a29e] text-xs\">Chaque Ravnos est maudit par un vice compulsif spécifique — jeu, vol, mensonge pathologique, pyromanie, n'importe quelle compulsion irrésistible. Ils doivent s'y adonner régulièrement ou subir des tourments psychologiques. De plus, ils ne peuvent jamais dormir deux nuits consécutives au même endroit — une malédiction de vagabondage éternel.</p>\n                </div>\n                <div class=\"text-[#a8a29e] text-xs italic\">\n                    <strong class=\"text-[#57534e] uppercase not-italic\">Mon évaluation :</strong> Les Ravnos survivants sont des raretés, des anachronismes traumatisés. Leur quasi-extinction les a rendus soit désespérément prudents, soit nihilistement téméraires. Leur magie illusoire est remarquable, mais leur fiabilité est toujours questionnable — la compulsion de tromper est littéralement codée dans leur sang.\n                </div>\n            </article>\n        </section>\n\n        <section>\n            <h3 class=\"text-center text-xl text-[#e5e5e5] uppercase tracking-widest font-bold mb-8 border-b border-[#292524] pb-4\">Lignées Rares & Abominations</h3>\n            \n            <div class=\"space-y-8\">\n                <article>\n                    <h4 class=\"text-lg text-[#d6d3d1] font-bold uppercase tracking-widest mb-2\">Les Gargouilles : Esclaves de Pierre</h4>\n                    <p class=\"text-justify text-[#a8a29e] text-xs\">Créations artificielles des Tremeres, les Gargouilles ne sont pas un vrai Clan mais une lignée forgée par la sorcellerie du sang. Les Tremeres ont fusionné le sang de trois Clans différents — Gangrel, Nosferatu, et Tzimisce — pour créer ces serviteurs : des créatures de pierre vivante, ailées, massives, conçues comme gardiennes et armes de guerre. Elles sont esclaves par conception, liées magiquement à leurs créateurs. Mais certaines ont gagné ou pris leur liberté, formant de petites communautés indépendantes. Elles rêvent de vraie autonomie, de reconnaissance comme un Clan légitime plutôt que comme des aberrations magiques.</p>\n                </article>\n                <article>\n                    <h4 class=\"text-lg text-[#d6d3d1] font-bold uppercase tracking-widest mb-2\">Les Samedi : Cadavres Ambulants</h4>\n                    <p class=\"text-justify text-[#a8a29e] text-xs\">Une lignée nécromantique maintenant absorbée dans les Hecata, les Samedi ressemblent littéralement à des cadavres en décomposition avancée. Chair putréfiée, os visibles, l'odeur de la mort les accompagnant partout. Ils pratiquent le vaudou nécromantique et servent souvent comme tueurs à gages — après tout, qui soupçonnerait un cadavre ambulant d'être le meurtrier ?</p>\n                </article>\n                <article>\n                    <h4 class=\"text-lg text-[#d6d3d1] font-bold uppercase tracking-widest mb-2 text-[#7f1d1d]\">Les Baali : L'Ennemi Absolu</h4>\n                    <p class=\"text-justify text-[#a8a29e] text-xs\">Je termine avec un avertissement, pas une description. Les Baali ne sont pas simplement un autre Clan avec des habitudes déplaisantes. Ils sont des adorateurs de démons, des servants d'entités infernales, des vampires qui ont embrassé non pas simplement la damnation mais l'annihilation spirituelle active. Ils corrompent, détruisent, profanent tout ce qu'ils touchent. Leur objectif n'est pas le pouvoir politique ou la survie mais l'apocalypse littérale — ouvrir des portails vers des dimensions infernales, libérer des entités démoniaques, détruire la réalité elle-même. Il existe un consensus rare et universel parmi toutes les sectes vampiriques : les Baali doivent être détruits à vue. Pas capturés. Pas interrogés. Pas négociés. Simplement éliminés avec extrême préjudice. Si vous rencontrez un Baali, fuyez ou tuez-le. Il n'y a pas de troisième option.</p>\n                </article>\n            </div>\n        </section>\n\n        <div class=\"mt-12 pt-8 border-t border-[#44403c] text-center\">\n             <p class=\"italic text-[#a8a29e] mb-4 text-justify\">\n                Voilà les lignées principales de notre espèce maudite. Chacune porte sa malédiction unique, ses talents spécialisés, son rôle dans notre société dysfonctionnelle. Vous appartenez maintenant à l'une d'entre elles — que vous l'ayez choisi ou non.\n                Votre Clan n'est pas votre destin, mais il est votre point de départ. Ce que vous faites avec cette malédiction héritée déterminera si vous devenez un monstre distingué ou simplement un autre cadavre assoiffé comptant les nuits jusqu'à la Géhenne.\n                Choisissez sagement vos alliances. Les guerres de Clan ont détruit des empires. Et elles recommenceront.\n             </p>\n             <div class=\"mt-8\">\n               <p class=\"font-bold text-[#7f1d1d] uppercase tracking-widest\">— Valerius</p>\n               <p class=\"text-xs text-[#57534e] mt-2 font-serif italic\">\"Sanguis vocat, sed non definit\"<br/>(Le sang appelle, mais ne définit pas)</p>\n           </div>\n        </div>\n\n      </div>"}, {"id": "ennemis", "title": "Les Prédateurs", "subtitle": "Ce qui nous chasse", "content": "<div class=\"max-w-2xl mx-auto font-serif text-[#d6d3d1] space-y-16 leading-7 text-sm\">\n         \n         <div class=\"text-center italic text-[#a8a29e]\">\n            \"Section V du Codex Tenebrae... Vous pensiez être au sommet de la chaîne alimentaire ? Vous vous imaginiez être devenu un super-prédateur, un immortel invincible qui règne sur l'humanité depuis les ombres ? Quelle naïveté charmante. Permettez-moi de détruire cette illusion confortable immédiatement.\n            Nous ne sommes pas seuls dans la nuit. Loin de là. Le Monde des Ténèbres est peuplé d'entités, d'organisations, et de créatures qui nous chassent activement.\n            Les mortels ignorants ne sont pas votre plus grand danger. Vos rivaux vampiriques ne sont pas votre menace la plus mortelle. Non, les véritables prédateurs sont ceux que je vais décrire maintenant. Considérez ce chapitre comme un guide de survie.\"\n         </div>\n\n         <!-- INQUISITION -->\n         <article>\n            <div class=\"flex items-center gap-4 mb-4 border-b border-[#7f1d1d] pb-2\">\n                <Skull className=\"text-[#b91c1c] w-6 h-6\"/>\n                <h3 class=\"text-xl font-bold uppercase tracking-wider\">La Seconde Inquisition : L'Alliance Impie</h3>\n            </div>\n            <p class=\"italic text-[#78716c] text-xs text-center mb-4\">« Ils nous ont trouvés. Et ils n'oublieront pas. »</p>\n            <p class=\"text-justify text-[#a8a29e] mb-4\">\n               Pendant des siècles, les mortels nous ont cherchés avec des torches et des fourches, avec des pieux de bois et des prières. Nous nous en sommes moqués. Nous avons infiltré leurs églises, corrompu leurs inquisiteurs, transformé leurs chasses aux sorcières en farces sanglantes qui tuaient principalement des innocents. Nous pensions avoir gagné. Nous pensions que l'ère moderne — avec sa rationalité scientifique, son scepticisme séculier — nous rendrait encore plus invisibles.\n            </p>\n            <p class=\"text-justify text-[#a8a29e] mb-4\">\n               Nous avions tort. Tragiquement, catastrophiquement tort.\n               Il y a une décennie, tout a changé. Une série d'événements — des fuites de données massives, des enquêtes qui ont révélé des motifs inexplicables, des incidents que même nos meilleurs nettoyeurs n'ont pas pu effacer complètement — a alerté certaines organisations mortelles de notre existence. Pas des théoriciens du complot marginaux. Pas des chasseurs de monstres amateurs. Mais les services de renseignement les plus puissants et les plus impitoyables du monde.\n            </p>\n            <p class=\"text-justify text-[#a8a29e] mb-4\">\n               La Seconde Inquisition n'est pas une organisation unique avec un quartier général identifiable. C'est une alliance informelle, une coopération pragmatique entre des agences qui se détestent normalement : la NSA américaine, les sections occultes du Vatican, le Mossad israélien, le MI6 britannique, le FSB russe, et d'autres encore. Ils ont mis de côté leurs différences géopolitiques pour un seul objectif unifié : notre extermination complète.\n            </p>\n\n            <h4 class=\"text-[#d6d3d1] font-bold text-xs uppercase mt-6 mb-2 border-l-2 border-[#7f1d1d] pl-3\">Ce Qu'Ils Savent</h4>\n            <p class=\"text-justify text-[#a8a29e] mb-4\">\n               Ne vous rassurez pas avec l'idée qu'ils ne comprennent pas vraiment ce que nous sommes. Ils savent. Ils savent que nous existons. Ils savent que nous ne vieillissons pas. Ils savent que nous nous nourrissons de sang humain. Ils ont même développé une terminologie clinique pour nous : les \"Corps Blancs\" — parce que nous n'apparaissons pas sur les caméras thermiques, nos corps morts ne dégageant aucune signature de chaleur.\n            </p>\n            <p class=\"text-justify text-[#a8a29e] mb-4\">\n               Ils ont compris nos faiblesses. Ils savent que nous sommes vulnérables pendant le jour. Ils savent que le feu nous terrifie. Ils ont identifié les motifs de nos organisations — les structures de Cour, les hiérarchies de Clan, les réseaux financiers qui nous soutiennent.\n            </p>\n            <p class=\"text-justify text-[#a8a29e] mb-4\">\n               Et ils utilisent contre nous les outils mêmes de la modernité que nous pensions pouvoir contrôler. Ils traquent les mouvements d'argent anormaux — un compte bancaire qui reste actif pendant des décennies sans que le titulaire ne vieillisse apparemment, des transactions immobilières bizarres, des entreprises-coquilles avec des structures de propriété opaques. Ils analysent les métadonnées de communication, cherchant des individus qui n'ont jamais été photographiés en plein jour, qui n'ont jamais laissé d'empreinte numérique diurne.\n            </p>\n\n            <h4 class=\"text-[#d6d3d1] font-bold text-xs uppercase mt-6 mb-2 border-l-2 border-[#7f1d1d] pl-3\">Leurs Méthodes</h4>\n            <p class=\"text-justify text-[#a8a29e] mb-4\">\n                La Seconde Inquisition ne cherche pas à nous arrêter. Ils ne veulent pas de procès publics, d'expositions médiatiques, ou de preuves scientifiques validées par des pairs. Ils veulent simplement nous exterminer. Méthodiquement. Silencieusement. Complètement.\n                Leurs tactiques sont d'une efficacité brutale :\n            </p>\n            <ul class=\"list-none pl-0 text-[#a8a29e] space-y-4 mb-4\">\n                <li class=\"pl-4 border-l border-[#57534e]\"><strong>Frappes Diurnes :</strong> Ils attaquent pendant le jour, quand nous sommes au plus faible, prisonniers de notre torpeur obligatoire. Ils ont identifié nos refuges — ces lieux que nous pensions imprenables — et ils les frappent avec une violence militaire. Pas de négociations. Pas d'avertissements. Juste des équipes d'intervention lourdement armées qui défoncent les portes à midi.</li>\n                <li class=\"pl-4 border-l border-[#57534e]\"><strong>Phosphore Blanc :</strong> Ils ont compris que le feu est notre faiblesse fondamentale. Alors ils utilisent du phosphore blanc, des lance-flammes, des bombes incendiaires. Ils brûlent nos refuges complètement, s'assurant qu'il ne reste que des cendres. Certains refuges anciens — des havres qui avaient survécu des siècles — ont été réduits en décombres fumants en quelques heures.</li>\n                <li class=\"pl-4 border-l border-[#57534e]\"><strong>Drones de Surveillance :</strong> À l'ère moderne, ils n'ont même plus besoin d'envoyer des agents humains. Des drones équipés de caméras thermiques patrouillent certaines zones, cherchant des anomalies — des bâtiments apparemment vides mais avec une activité nocturne suspecte, des véhicules qui bougent seulement après le coucher du soleil. Un drone peut observer pendant des semaines avant que la frappe ne soit ordonnée.</li>\n                <li class=\"pl-4 border-l border-[#57534e]\"><strong>Piratage et Surveillance Numérique :</strong> Voici où cela devient vraiment terrifiant pour notre génération moderne de vampires. Ils surveillent tout. Chaque téléphone portable est un mouchard potentiel. Chaque caméra de surveillance est leurs yeux. Chaque transaction par carte de crédit laisse une trace. Les vampires qui ont essayé de s'adapter à la vie moderne — utilisant des smartphones, maintenant des profils sur les réseaux sociaux, effectuant des transactions bancaires en ligne — ont été les premiers chassés et détruits.</li>\n            </ul>\n\n            <h4 class=\"text-[#d6d3d1] font-bold text-xs uppercase mt-6 mb-2 border-l-2 border-[#7f1d1d] pl-3\">Comment Survivre</h4>\n            <p class=\"text-justify text-[#a8a29e] mb-4\">\n                Mes conseils sont simples mais difficiles à suivre pour beaucoup d'entre vous qui avez grandi dans l'ère numérique :\n            </p>\n            <ul class=\"list-none pl-0 text-[#a8a29e] space-y-4 mb-4\">\n                <li class=\"pl-4 border-l border-[#7f1d1d]\"><strong>Jetez votre téléphone.</strong> Je ne plaisante pas. Votre smartphone est un dispositif de pistage que vous transportez volontairement. Chaque tour cellulaire enregistre votre position. Chaque application collecte des données. La NSA peut activer à distance votre microphone et votre caméra sans que vous le sachiez. Si vous devez absolument communiquer électroniquement, utilisez des téléphones jetables achetés en liquide, utilisez-les une seule fois, puis détruisez-les.</li>\n                <li class=\"pl-4 border-l border-[#7f1d1d]\"><strong>Évitez Toute Trace Numérique.</strong> Pas de comptes bancaires modernes à votre vrai nom. Pas de profils sur les réseaux sociaux. Pas de cartes de crédit. Pas de cartes de fidélité. Rien qui vous connecte à une identité traçable. Utilisez du liquide pour tout. Vivez comme si nous étions encore au XIXe siècle, car franchement, c'était plus sûr pour notre espèce.</li>\n                <li class=\"pl-4 border-l border-[#7f1d1d]\"><strong>Multiplier les Refuges.</strong> Ne dormez jamais au même endroit plus de quelques nuits consécutives. Ayez plusieurs refuges de secours, idéalement inconnus même de vos alliés proches. Si la Seconde Inquisition identifie un de vos refuges, vous voulez avoir disparu avant que les équipes d'intervention n'arrivent.</li>\n                <li class=\"pl-4 border-l border-[#7f1d1d]\"><strong>Compartimentez l'Information.</strong> Ne révélez jamais l'emplacement de vos refuges à d'autres vampires à moins que ce soit absolument nécessaire. La Seconde Inquisition est remarquablement efficace pour capturer des vampires et les \"interroger\" — un euphémisme poli pour des tortures qui exploitent nos faiblesses spécifiques jusqu'à ce que nous révélions tout.</li>\n            </ul>\n            <p class=\"text-justify text-[#a8a29e] italic\">\n                La Seconde Inquisition a déjà détruit plusieurs Princes européens, démantelé des Chantries Tremere entières, et éradiqué des lignées mineures complètes. Ils gagnent. Et la plupart des vampires — particulièrement les Anciens qui refusent d'accepter que le monde a changé — ne réalisent même pas à quel point la situation est désespérée.\n            </p>\n         </article>\n\n         <div class=\"flex justify-center\"><div class=\"w-16 h-px bg-[#7f1d1d]\"></div></div>\n\n         <!-- GAROU -->\n         <article>\n            <div class=\"flex items-center gap-4 mb-4 border-b border-[#57534e] pb-2\">\n                <Moon className=\"text-[#a8a29e] w-6 h-6\"/>\n                <h3 class=\"text-xl font-bold uppercase tracking-wider\">Les Garous : Les Guerriers de Gaia</h3>\n            </div>\n            <p class=\"italic text-[#78716c] text-xs text-center mb-4\">« La nature a des dents. Et elles sont plus grandes que les vôtres. »</p>\n            <p class=\"text-justify text-[#a8a29e] mb-4\">\n               Si la Seconde Inquisition représente le danger de la civilisation humaine moderne, les Garous — les loups-garous, bien qu'ils détestent ce terme réducteur — représentent la fureur de la nature elle-même. Et ils nous considèrent, tous sans exception, comme des abominations qui doivent être effacées de l'existence.\n            </p>\n\n            <h4 class=\"text-[#d6d3d1] font-bold text-xs uppercase mt-6 mb-2 border-l-2 border-[#57534e] pl-3\">Leur Perspective</h4>\n            <p class=\"text-justify text-[#a8a29e] mb-4\">\n                Les Garous se nomment eux-mêmes les guerriers de Gaia, la Terre-Mère personnifiée. Selon leur cosmologie (que je n'endosse pas nécessairement, mais que j'ai appris à respecter par pure nécessité de survie), l'univers est en guerre. D'un côté, Gaia et ses défenseurs. De l'autre, le Wyrm — une entité de corruption cosmique, de pourriture spirituelle, de destruction entropique.\n                Nous, les vampires, sommes classés automatiquement comme agents du Wyrm. Pas métaphoriquement. Littéralement. Ils croient que nous sommes intrinsèquement corrompus, que notre simple existence pollue la toile spirituelle de la réalité, que chaque mortel que nous tuons est une blessure infligée à Gaia elle-même.\n                Il n'y a pas de négociation possible. Pas de diplomatie. Pas de traités. Pour un Garou, nous voir est suffisant pour déclencher une attaque immédiate. Ils sont fanatiques dans leur dévotion, et leur fanatisme est armé d'une puissance physique qui défie toute description rationnelle.\n            </p>\n\n            <h4 class=\"text-[#d6d3d1] font-bold text-xs uppercase mt-6 mb-2 border-l-2 border-[#57534e] pl-3\">Ce Qu'Ils Sont</h4>\n            <p class=\"text-justify text-[#a8a29e] mb-4\">\n                Un Garou en forme de guerre — ce qu'ils appellent leur forme Crinos — est une abomination de trois mètres de haut de muscles, de fourrure, de griffes et de rage pure. Imaginez un loup agrandi aux proportions humanoïdes, puis multipliez sa férocité par cent. Ils se déplacent avec une vitesse qui rend nos propres capacités vampiriques risibles. Leurs griffes peuvent déchirer l'acier. Leurs mâchoires peuvent broyer des os comme du verre.\n                Et contrairement à nous, ils se régénèrent. Instantanément. Tirez une balle dans un Garou, et la blessure se referme avant que vous ne puissiez tirer à nouveau. Tranchez-les avec une épée, et ils vous arracheront la tête avant que le sang ne commence à couler. La seule façon de les blesser efficacement est avec de l'argent — qui, ironiquement, est l'une des rares substances qui les affectent comme le feu nous affecte.\n                Un seul Garou expérimenté peut détruire un Ancien vampirique en quelques secondes. J'ai entendu des récits d'une meute de Garous — généralement cinq à huit individus — démolissant une coterie entière de vampires, dont certains avaient survécu des siècles, en moins d'une minute. Ce n'était pas un combat. C'était une exécution.\n            </p>\n\n            <h4 class=\"text-[#d6d3d1] font-bold text-xs uppercase mt-6 mb-2 border-l-2 border-[#57534e] pl-3\">Où Ils Vivent</h4>\n            <p class=\"text-justify text-[#a8a29e] mb-4\">\n                Les Garous contrôlent les espaces sauvages — les forêts, les parcs nationaux, les zones rurales, n'importe où la nature conserve encore une emprise significative sur le territoire. Ils patrouillent ces zones avec une vigilance paranoïaque, cherchant toute intrusion de forces de corruption — ce qui inclut automatiquement nous.\n                Certaines zones urbaines ont également des populations Garous — particulièrement les grandes villes avec des parcs significatifs. Ils défendent ces îlots de nature au sein du béton avec une férocité encore plus grande, sachant combien ils sont précaires et menacés.\n            </p>\n\n            <h4 class=\"text-[#d6d3d1] font-bold text-xs uppercase mt-6 mb-2 border-l-2 border-[#57534e] pl-3\">La Règle d'Or</h4>\n            <p class=\"text-justify text-[#a8a29e] mb-4\">\n                Ne sortez jamais de la ville. Sérieusement. Jamais. Cette escapade romantique vers une cabane isolée en forêt ? C'est un suicide. Cette chasse dans les bois ruraux parce que vous êtes fatigué de vous nourrir de SDF urbains ? Vous serez mort avant l'aube, votre corps démembré laissé pour que les charognards s'en occupent.\n                La civilisation humaine — aussi étouffante soit-elle — est votre protection contre les Garous. Ils évitent généralement les centres urbains denses, mal à l'aise dans le béton et l'acier, conscients que leur forme de guerre viole massivement leur propre version de la Mascarade (qu'ils appellent le Voile). Restez dans les villes. Restez dans les foules. Restez où la nature a été domptée, pavée, et éclairée par des lampadaires.\n                Si vous devez absolument voyager entre les villes, faites-le en véhicule rapide, sur les autoroutes principales, sans jamais vous arrêter dans des zones isolées. Et priez — bien que nos prières soient probablement ignorées — que vous ne croisiez pas une patrouille Garou en chemin.\n            </p>\n         </article>\n\n         <div class=\"flex justify-center\"><div class=\"w-16 h-px bg-[#7f1d1d]\"></div></div>\n\n         <!-- MAGES -->\n         <article>\n            <div class=\"flex items-center gap-4 mb-4 border-b border-[#581c87] pb-2\">\n                <Zap className=\"text-[#a855f7] w-6 h-6\"/>\n                <h3 class=\"text-xl font-bold uppercase tracking-wider\">Les Mages : L'Hubris Incarnée</h3>\n            </div>\n            <p class=\"italic text-[#78716c] text-xs text-center mb-4\">« Ils ne suivent pas les règles. Ils les réécrivent. »</p>\n            <p class=\"text-justify text-[#a8a29e] mb-4\">\n               Si les Garous sont la fureur de la nature, les Mages sont l'arrogance de la volonté humaine poussée jusqu'à son apogée logique et terrifiante. Ce sont des mortels — techniquement — qui ont réalisé quelque chose que la plupart des humains n'imaginent même pas : que la réalité elle-même est consensuelle, malléable, modifiable par une volonté suffisamment éveillée et disciplinée.\n            </p>\n\n            <h4 class=\"text-[#d6d3d1] font-bold text-xs uppercase mt-6 mb-2 border-l-2 border-[#581c87] pl-3\">Ce Qu'Ils Peuvent Faire</h4>\n            <p class=\"text-justify text-[#a8a29e] mb-4\">\n                Les Mages ont brisé les chaînes de ce qu'ils appellent la \"réalité consensuelle\" — l'accord tacite entre tous les esprits mortels qui définit ce qui est \"possible\" et ce qui ne l'est pas. Pour eux, les lois de la physique sont des suggestions. La causalité est flexible. L'impossible est simplement improbable jusqu'à ce qu'ils décident du contraire.\n                Laissez-moi être parfaitement clair sur ce que cela signifie en termes pratiques :\n            </p>\n            <ul class=\"list-none pl-0 text-[#a8a29e] space-y-2 mb-4\">\n                <li class=\"pl-4 border-l border-[#581c87]\">Un Mage compétent peut transformer votre sang en sable d'un geste. Littéralement. La Vitae qui anime votre corps mort devient soudainement de la silice granuleuse, et vous vous effondrez en torpeur instantanée ou, si le sort est suffisamment puissant, en Mort Finale immédiate.</li>\n                <li class=\"pl-4 border-l border-[#581c87]\">Ils peuvent invoquer le soleil en pleine nuit. Pas métaphoriquement — ils peuvent créer une sphère de lumière solaire authentique, complète avec des rayons ultraviolets mortels, et la diriger vers vous. Pour nous, c'est l'équivalent d'une arme nucléaire tactique.</li>\n                <li class=\"pl-4 border-l border-[#581c87]\">Ils peuvent vous effacer de l'histoire. J'ai entendu des rapports — jamais confirmés, mais suffisamment cohérents pour être préoccupants — de Mages qui ont littéralement retiré des vampires de la chronologie. Pas simplement tués, mais éradiqués rétroactivement, comme s'ils n'avaient jamais existé. Vos Infants oublient qui les a créés. Vos alliés ne se souviennent pas de vous. Les documents qui mentionnaient votre nom deviennent vierges.</li>\n                <li class=\"pl-4 border-l border-[#581c87]\">Ils peuvent voyager instantanément à travers l'espace. Lire les pensées. Voir l'avenir avec une précision troublante. Créer des objets du néant. Contrôler les éléments. Et ce ne sont que les capacités les plus basiques, les plus facilement observables.</li>\n            </ul>\n\n            <h4 class=\"text-[#d6d3d1] font-bold text-xs uppercase mt-6 mb-2 border-l-2 border-[#581c87] pl-3\">Pourquoi Ils Sont (Relativement) Rares</h4>\n            <p class=\"text-justify text-[#a8a29e] mb-4\">\n                Si les Mages sont si puissants, pourquoi ne gouvernent-ils pas ouvertement le monde ? Plusieurs raisons :\n                Premièrement, ils sont extrêmement rares. L'éveil mystique qui transforme un mortel ordinaire en Mage est un événement spontané, imprévisible, et rare. Pour chaque million d'humains, peut-être un ou deux atteindront jamais ce potentiel.\n                Deuxièmement, ils sont profondément, pathologiquement divisés. Les Mages se regroupent en factions — ils les appellent Traditions, Conventions, Disparates — qui s'opposent philosophiquement et parfois violemment sur la nature de la réalité, l'utilisation appropriée de la magie, et l'avenir de l'humanité. Ils passent plus de temps à se combattre entre eux qu'à nous chasser.\n                Troisièmement, leur magie a un coût. Lorsqu'un Mage défie trop ouvertement la réalité consensuelle — particulièrement devant des témoins mortels non éveillés — quelque chose qu'ils appellent le Paradoxe se manifeste. C'est une rétroaction métaphysique, une punition de la réalité elle-même pour avoir été tordue trop loin. Les effets varient : parfois, le sort échoue simplement. Parfois, il se retourne contre le lanceur. Parfois, des phénomènes vraiment bizarres se manifestent.\n                Cette limitation signifie que les Mages opèrent généralement avec subtilité, déguisant leur magie pour qu'elle ressemble à de la chance, à des coïncidences, à des phénomènes naturels. Mais dans des situations extrêmes ? Quand ils décident que la subtilité ne vaut plus la peine ? Ils peuvent accomplir littéralement n'importe quoi.\n            </p>\n\n            <h4 class=\"text-[#d6d3d1] font-bold text-xs uppercase mt-6 mb-2 border-l-2 border-[#581c87] pl-3\">Comment Interagir (Ou Plutôt, Ne Pas Interagir)</h4>\n            <p class=\"text-justify text-[#a8a29e] mb-4\">\n                Mon conseil est simple : Évitez-les. Complètement. Totalement. Ne cherchez jamais un Mage. Ne négociez jamais avec un Mage sauf en dernier recours absolu. Ne menacez certainement jamais un Mage — ils interprètent les menaces comme des défis, et les défis comme des permissions de démontrer leur supériorité cosmique.\n                Si vous devez absolument interagir avec un Mage :\n            </p>\n            <ul class=\"list-none pl-0 text-[#a8a29e] space-y-2\">\n                <li class=\"pl-4 border-l border-[#581c87]\"><strong>Soyez Respectueux.</strong> Ils ont l'hubris de personnes qui ont littéralement réécrit la réalité. Traitez-les comme vous traiteriez un Prince paranoïaque avec le pouvoir de vous incinérer d'un claquement de doigts — parce que c'est essentiellement ce qu'ils sont.</li>\n                <li class=\"pl-4 border-l border-[#581c87]\"><strong>N'Essayez Pas de les Dominer.</strong> Nos Disciplines mentales — Domination, Présence — sont remarquablement inefficaces contre les Mages éveillés. Leur conscience transcende les limitations qui rendent les mortels ordinaires vulnérables. Tenter de dominer un Mage est le moyen le plus rapide de les offenser mortellement.</li>\n                <li class=\"pl-4 border-l border-[#581c87]\"><strong>Offrez de la Valeur.</strong> Si un Mage vous approche pour une négociation, c'est parce qu'il veut quelque chose que vous pouvez fournir. Découvrez ce que c'est, fournissez-le efficacement, puis éloignez-vous avant qu'il ne décide que vous connaissez trop de choses sur lui.</li>\n            </ul>\n            <p class=\"text-justify text-[#a8a29e] mt-4\">\n                Les Mages sont imprévisibles, arrogants, et dangereusement puissants. Ils sont également, heureusement, généralement plus intéressés par leurs propres conflits philosophiques que par nous. Gardons les choses ainsi.\n            </p>\n         </article>\n\n         <div class=\"flex justify-center\"><div class=\"w-16 h-px bg-[#7f1d1d]\"></div></div>\n\n         <!-- FÉES -->\n         <article>\n            <div class=\"flex items-center gap-4 mb-4 border-b border-[#064e3b] pb-2\">\n                <Anchor className=\"text-[#10b981] w-6 h-6\"/>\n                <h3 class=\"text-xl font-bold uppercase tracking-wider\">Le Beau Peuple : Les Caprices Incarnés</h3>\n            </div>\n            <p class=\"italic text-[#78716c] text-xs text-center mb-4\">« Ne donnez jamais votre nom. Ne concluez jamais de marché. Ne suivez jamais la musique. »</p>\n            <p class=\"text-justify text-[#a8a29e] mb-4\">\n               Il existe des créatures plus anciennes que nous. Plus anciennes que l'humanité. Des êtres qui existaient quand le monde était jeune, qui ont vu les premiers humains ramper hors des cavernes, qui ont dansé dans les forêts primordiales bien avant que Caïn ne commette le Premier Meurtre.\n               Nous les appelons le Beau Peuple, bien que ce soit un euphémisme poli pour ne pas attirer leur attention. Les mortels les nomment Fées, Fae, Sidhe, Tylwyth Teg, ou une douzaine d'autres noms selon la culture. Eux-mêmes se nomment... eh bien, nous ne connaissons pas leurs vrais noms. Et c'est probablement préférable ainsi.\n            </p>\n\n            <h4 class=\"text-[#d6d3d1] font-bold text-xs uppercase mt-6 mb-2 border-l-2 border-[#064e3b] pl-3\">Leur Nature</h4>\n            <p class=\"text-justify text-[#a8a29e] mb-4\">\n                Le Beau Peuple n'est pas simplement une autre espèce surnaturelle. Ils sont fondamentalement, ontologiquement différents. Ils émergent des rêves et des cauchemars de l'humanité, nés de l'imagination collective, alimentés par les histoires, les croyances, les peurs ancestrales. Ils sont simultanément réels et métaphoriques, physiques et conceptuels.\n                Ils ne comprennent pas notre moralité. Ils ne comprennent pas l'éthique humaine. Les concepts de \"bien\" et \"mal\", \"juste\" et \"injuste\" leur sont aussi étrangers que la couleur l'est pour un aveugle de naissance. Ils opèrent selon des règles — oh, ils adorent les règles, les pactes, les accords formels — mais leurs règles sont surréalistes, basées sur des logiques qui n'ont de sens que dans leurs royaumes de rêve.\n                Un membre du Beau Peuple peut vous offrir des merveilles en échange de votre nom. Pas votre nom écrit sur un papier — votre nom lui-même, l'essence identitaire qui vous définit. Acceptez, et vous recevrez peut-être des pouvoirs magnifiques, des trésors impossibles, des connaissances oubliées. Mais vous cesserez d'exister comme entité distincte. Les autres vous oublieront. Vous vous oublierez vous-même. Vous deviendrez un vide ambulant portant une chair qui avait autrefois une identité.\n                Ils peuvent vous piéger dans des pactes éternels basés sur des malentendus linguistiques. Acceptez de \"servir jusqu'à ce que la lune touche la terre\" et vous découvrirez que dans leur compréhension, cela signifie \"pour toujours\" puisque la lune ne touchera littéralement jamais la terre. Promettez de \"ne jamais mentir en leur présence\" et vous réaliserez trop tard que vous ne pouvez plus parler du tout quand ils sont proches, car tout langage contient des inexactitudes, des simplifications, des \"mensonges\" techniques.\n            </p>\n\n            <h4 class=\"text-[#d6d3d1] font-bold text-xs uppercase mt-6 mb-2 border-l-2 border-[#064e3b] pl-3\">Les Signes de Leur Présence</h4>\n            <p class=\"text-justify text-[#a8a29e] mb-4\">Apprenez à reconnaître quand le Beau Peuple est proche :</p>\n            <ul class=\"list-none pl-0 text-[#a8a29e] space-y-2 mb-4\">\n                <li class=\"pl-4 border-l border-[#064e3b]\"><strong>Musique Étrange :</strong> Vous entendez une mélodie que vous n'avez jamais entendue auparavant, jouée sur des instruments qui ne devraient pas exister, suivant des structures musicales qui ne correspondent à aucune tradition humaine. C'est envoûtant. C'est irrésistible. C'est un piège. La musique des Fae est conçue pour séduire, attirer, mener les auditeurs dans leurs royaumes d'où ils ne reviennent jamais — ou s'ils reviennent, des décennies ont passé et tout ce qu'ils connaissaient est mort.</li>\n                <li class=\"pl-4 border-l border-[#064e3b]\"><strong>Ombres Contre Nature :</strong> Les ombres bougent indépendamment de leurs sources. Elles s'étendent dans des directions impossibles. Elles forment des motifs qui suggèrent des formes — des visages, des portes, des créatures — qui disparaissent quand vous les regardez directement.</li>\n                <li class=\"pl-4 border-l border-[#064e3b]\"><strong>Temps Distordu :</strong> Vous marchez pendant ce qui semble quelques minutes et réalisez que des heures ont passé. Ou l'inverse — vous conversez pendant ce qui devrait être des heures mais seules quelques secondes se sont écoulées. Le temps devient glissant, non-linéaire.</li>\n                <li class=\"pl-4 border-l border-[#064e3b]\"><strong>Nature Trop Parfaite :</strong> Une clairière où chaque fleur est identique. Un arbre dont les branches forment une symétrie mathématiquement précise. Des oiseaux qui chantent en harmonies impossibles. Quand la nature devient trop ordonnée, trop belle, c'est qu'elle n'est plus vraiment naturelle.</li>\n            </ul>\n\n            <h4 class=\"text-[#d6d3d1] font-bold text-xs uppercase mt-6 mb-2 border-l-2 border-[#064e3b] pl-3\">Comment Survivre</h4>\n            <p class=\"text-justify text-[#a8a29e] mb-4\">\n                Fuyez. Je ne plaisante pas. Si vous reconnaissez les signes de la présence du Beau Peuple, fuyez immédiatement. Ne vous retournez pas. Ne cherchez pas à comprendre. Ne laissez pas la curiosité vous retenir. Chaque seconde que vous passez dans leur proximité augmente les chances qu'ils remarquent votre existence, et leur attention est rarement bénéfique.\n            </p>\n            <ul class=\"list-none pl-0 text-[#a8a29e] space-y-2\">\n                <li class=\"pl-4 border-l border-[#064e3b]\"><strong>Ne Donnez Jamais Votre Vrai Nom.</strong> Si vous êtes forcé d'interagir, utilisez un pseudonyme, un surnom, un titre — n'importe quoi sauf votre nom véritable. Les noms ont un pouvoir dans leur monde, et donner le vôtre leur accorde une emprise sur vous.</li>\n                <li class=\"pl-4 border-l border-[#064e3b]\"><strong>Ne Concluez Jamais de Marché.</strong> Aussi tentante que soit leur offre, aussi désespérée que soit votre situation, n'acceptez jamais un pacte avec le Beau Peuple. Les termes seront toujours interprétés à votre désavantage. Les échappatoires que vous croyez avoir trouvées se révéleront être des pièges supplémentaires. Et les conséquences d'un pacte rompu — même accidentellement — sont horrifiantes au-delà de toute description.</li>\n                <li class=\"pl-4 border-l border-[#064e3b]\"><strong>Ne Suivez Jamais la Musique.</strong> Aussi belle soit-elle. Aussi familière semble-t-elle. C'est un leurre, une invitation vers des lieux où notre espèce n'est pas censée aller.</li>\n            </ul>\n            <p class=\"text-justify text-[#a8a29e] mt-4\">\n                Le Beau Peuple est imprévisible, capricieux, et fonctionne selon une logique qui défie toute rationalité. Ils peuvent être généreux ou cruels, souvent simultanément. Ils sont moins des ennemis que des forces naturelles impersonnelles — comme des ouragans ou des avalanches. Vous ne les combattez pas. Vous les évitez.\n            </p>\n         </article>\n         \n      </div>"}];
 
-    <!-- Mobile Menu Button -->
-    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
+function showSection(id){
+const s=sections.find(x=>x.id===id);
+if(!s)return;
+const contentEl=document.getElementById('content');
+contentEl.style.opacity='0';
+setTimeout(()=>{
+contentEl.innerHTML=`
+<div class="content-header">
+<h1 class="content-title">${s.title}</h1>
+<div class="content-divider"></div>
+<p class="content-subtitle">${s.subtitle}</p>
+</div>
+<div class="content-body">${s.content}</div>
+`;
+contentEl.style.opacity='1';
+},100);
 
-    <!-- Mobile Overlay -->
-    <div class="mobile-overlay" id="mobileOverlay"></div>
+document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+event.target.classList.add('active');
 
-    <div class="w-full max-w-6xl h-[90vh] glass-panel rounded-xl flex overflow-hidden shadow-2xl relative main-container" id="mainContainer">
+if(window.innerWidth<=768)toggleNav();
+window.scrollTo({top:0,behavior:'smooth'});
+}
 
-        <!-- Sidebar Navigation -->
-        <div class="sidebar" id="sidebar">
-            <div class="flex flex-col h-full">
-                <div class="p-6 border-b border-white/10 flex-shrink-0">
-                    <div class="text-xs font-mono text-red-500 mb-1 tracking-widest">DOSSIER #NV-01</div>
-                    <div class="text-xl font-serif font-bold text-white tracking-wide">BIENVENUE<br>DANS LA NUIT</div>
-                </div>
-                <nav class="mt-4 flex flex-col gap-1 overflow-y-auto flex-grow custom-scrollbar">
-                    <div onclick="loadSection('intro')" class="sidebar-item active" id="nav-intro">I. L'Éveil</div>
-                    <div onclick="loadSection('nature')" class="sidebar-item" id="nav-nature">II. La Nature</div>
-                    <div onclick="loadSection('society')" class="sidebar-item" id="nav-society">III. La Société</div>
-                    <div onclick="loadSection('traditions')" class="sidebar-item" id="nav-traditions">IV. Les Lois</div>
-                    <div onclick="loadSection('clans')" class="sidebar-item" id="nav-clans">V. Les Sangs</div>
-                    <div onclick="loadSection('enemies')" class="sidebar-item" id="nav-enemies">VI. Menaces</div>
-                    <div onclick="loadSection('blood')" class="sidebar-item" id="nav-blood">VII. Sang & Servitude</div>
-                    <div onclick="loadSection('etiquette')" class="sidebar-item" id="nav-etiquette">VIII. Codes Sociaux</div>
-                    <div onclick="loadSection('lexicon')" class="sidebar-item" id="nav-lexicon">IX. Lexique</div>
-                </nav>
-                <div class="p-6 border-t border-white/10 mt-auto flex-shrink-0">
-                    <div class="flex items-center gap-3 opacity-60">
-                        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                        <span class="text-xs font-mono">CONNEXION SÉCURISÉE</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+function toggleNav(){
+const sidebar=document.getElementById('sidebar');
+const overlay=document.querySelector('.overlay');
+sidebar.classList.toggle('show');
+overlay.classList.toggle('show');
+document.body.style.overflow=sidebar.classList.contains('show')?'hidden':'';
+}
 
-        <!-- Main Content -->
-        <div class="flex-1 relative bg-gradient-to-br from-gray-900 to-black overflow-hidden">
-            <!-- Background Texture -->
-            <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');"></div>
-            
-            <div id="content-container" class="relative z-10 h-full p-12 content-area">
-                <!-- Content injected here -->
-            </div>
-        </div>
+showSection('prologue');
 
-    </div>
+let lastTouchEnd=0;
+document.addEventListener('touchend',e=>{
+const now=Date.now();
+if(now-lastTouchEnd<=300)e.preventDefault();
+lastTouchEnd=now;
+},false);
 
-    <script>
-        const content = {
-            intro: {
-                title: "Vous êtes mort.",
-                subtitle: "Bienvenue dans l'éternité",
-                body: `
-                    <p class="text-body">
-                        Prenez un instant. Respirez. Vous sentez ? L'air entre dans vos poumons, mais il ne vous apporte rien. Votre cœur est silencieux dans votre poitrine. La chaleur a quitté votre peau.
-                    </p>
-                    <p class="text-body">
-                        Hier soir, vous étiez humain. Vous aviez une vie, des soucis, une famille. Puis vous avez rencontré votre <strong>Sire</strong>. Il vous a vidé de votre sang mortel et vous a nourri du sien. Ce moment s'appelle <strong>l'Étreinte</strong>.
-                    </p>
-                    <div class="quote-box">
-                        "Ne pleurez pas le soleil. Vous avez échangé la lumière du jour contre le pouvoir de la nuit."
-                    </div>
-                    <p class="text-body">
-                        Vous êtes maintenant un <strong>Infant</strong> (Childe), un nouveau-né dans notre monde. Vous êtes un prédateur. Vous appartenez à la race des <strong>Caïnites</strong>, ou comme nous préférons nous appeler entre nous : la Famille (Kindred).
-                    </p>
-                    <p class="text-body">
-                        Oubliez les films. Oubliez l'ail et les crucifix. Ce sont des contes pour enfants. Votre réalité est désormais faite de sang, de politique et de secrets.
-                    </p>
-                `
-            },
-            nature: {
-                title: "La Malédiction",
-                subtitle: "La Soif et la Bête",
-                body: `
-                    <h2 class="sub-header">La Vitae</h2>
-                    <p class="text-body">
-                        Le sang est tout. Nous l'appelons <strong>Vitae</strong>. C'est votre carburant, votre monnaie, votre drogue. Il vous permet de guérir, de bouger avec une vitesse inhumaine, d'hypnotiser les foules. Sans lui, vous vous desséchez et tombez en torpeur.
-                    </p>
-                    <p class="text-body">
-                        Chaque nuit, vous vous réveillerez avec moins de sang que la veille. C'est inévitable. Vous devrez chasser.
-                    </p>
-
-                    <h2 class="sub-header">La Bête</h2>
-                    <p class="text-body">
-                        Fermez les yeux. Sentez-vous cette colère sourde au fond de votre crâne ? Cette envie de déchirer, de détruire, de dominer ? C'est la <strong>Bête</strong>.
-                    </p>
-                    <p class="text-body">
-                        La Bête est votre passager sombre. Elle veut votre survie à tout prix. Si vous avez trop faim, si vous êtes trop en colère, ou si vous avez peur du feu, elle prendra le contrôle. Nous appelons cela la <strong>Frénésie</strong>. Quand cela arrive, vous n'êtes plus qu'un animal violent. Vous tuerez tout ce qui bouge, même ceux que vous aimez.
-                    </p>
-                    <p class="text-body warning-text">
-                        Garder son Humanité est la seule façon de tenir la Bête en laisse. Ne devenez pas le monstre que vous êtes.
-                    </p>
-                `
-            },
-            society: {
-                title: "Géopolitique",
-                subtitle: "La Tour d'Ivoire et la Rue",
-                body: `
-                    <p class="text-body">
-                        Nous ne sommes pas des animaux solitaires. Nous avons une société complexe, féodale et brutale.
-                    </p>
-
-                    <h2 class="sub-header">La Camarilla</h2>
-                    <p class="text-body">
-                        L'organisation à laquelle vous appartenez probablement. C'est un club élitiste, une "Tour d'Ivoire" dirigée par les Anciens. La Camarilla prône l'ordre, la hiérarchie et le maintien absolu du secret. Elle est dirigée par un <strong>Prince</strong> qui règne sur la ville.
-                    </p>
-
-                    <h2 class="sub-header">Les Anarchs</h2>
-                    <p class="text-body">
-                        Les rebelles. Ils rejettent la tyrannie des Princes et veulent vivre libres. Ils respectent le secret (car ils veulent survivre), mais ils méprisent l'étiquette et les courbettes. Ils contrôlent souvent les rues et les quartiers défavorisés.
-                    </p>
-
-                    <h2 class="sub-header">L'Autarkis</h2>
-                    <p class="text-body">
-                        Ceux qui refusent de choisir. Dangereux. Sans protection.
-                    </p>
-                `
-            },
-            traditions: {
-                title: "Les Traditions",
-                subtitle: "La Loi du Sang",
-                body: `
-                    <p class="text-body">
-                        Il y a des règles. Enfreignez-les, et c'est la Mort Ultime.
-                    </p>
-
-                    <h2 class="sub-header">I. LA MASCARADE</h2>
-                    <div class="quote-box">
-                        "Tu ne révéleras point ta vraie nature à ceux qui ne sont pas du Sang."
-                    </div>
-                    <p class="text-body">
-                        C'est la règle d'or. Les humains sont des milliards. Nous sommes quelques milliers. S'ils savaient que nous existons, ils nous brûleraient tous. Ne montrez jamais vos pouvoirs en public. Ne laissez pas de preuves.
-                    </p>
-
-                    <h2 class="sub-header">II. LE DOMAINE</h2>
-                    <p class="text-body">
-                        Le Prince possède la ville. Les Anciens possèdent des quartiers. Ne chassez pas sur le territoire d'un autre sans sa permission, ou vous serez chassé comme du gibier.
-                    </p>
-
-                    <h2 class="sub-header">III. LA PROGÉNITURE</h2>
-                    <p class="text-body">
-                        Tu ne créeras pas d'autre vampire sans la permission de ton Ancien. L'Étreinte est un privilège, pas un droit. Les infants illégaux sont exécutés, souvent avec leur Sire.
-                    </p>
-                `
-            },
-            clans: {
-                title: "Le Sang",
-                subtitle: "Les Lignées Majeures",
-                body: `
-                    <p class="text-body">
-                        Votre sang définit vos pouvoirs et vos faiblesses. C'est votre Clan.
-                    </p>
-                    
-                    <h2 class="sub-header">Haute Noblesse</h2>
-                    <ul class="list-disc pl-5 mb-4 text-gray-400 space-y-2">
-                        <li><strong>Ventrue :</strong> Les Rois et PDG. Ils commandent et dominent.</li>
-                        <li><strong>Toreador :</strong> Les Artistes et Hédonistes. Ils séduisent et manipulent.</li>
-                        <li><strong>Tremere :</strong> Les Sorciers de Sang. Secrets et organisés.</li>
-                        <li><strong>Lasombra :</strong> Les Maîtres des Ombres et de l'Église. Impitoyables.</li>
-                    </ul>
-
-                    <h2 class="sub-header">Le Peuple et les Parias</h2>
-                    <ul class="list-disc pl-5 mb-4 text-gray-400 space-y-2">
-                        <li><strong>Brujah :</strong> Les Rebelles philosophes. Forts, rapides et colériques.</li>
-                        <li><strong>Gangrel :</strong> Les Bêtes. Proches de la nature, métamorphes.</li>
-                        <li><strong>Nosferatu :</strong> Les Horreurs cachées. Maîtres des secrets et de l'espionnage.</li>
-                        <li><strong>Malkavien :</strong> Les Oracles fous. Ils voient ce que personne ne voit.</li>
-                        <li><strong>Banu Haqim :</strong> Les Juges et Assassins silencieux.</li>
-                    </ul>
-                `
-            },
-            enemies: {
-                title: "Menaces",
-                subtitle: "Ce qui rôde dans le noir",
-                body: `
-                    <p class="text-body">
-                        Vous n'êtes pas au sommet de la chaîne alimentaire.
-                    </p>
-
-                    <h2 class="sub-header">La Seconde Inquisition (S.I.)</h2>
-                    <p class="text-body warning-text">
-                        ATTENTION MAXIMALE.
-                    </p>
-                    <p class="text-body">
-                        Les agences de renseignement humaines (CIA, NSA, Vatican) savent que nous existons. Ils nous traquent avec des drones, des satellites et des forces spéciales. N'utilisez pas votre téléphone pour parler de "sang". N'utilisez pas internet sans cryptage. Ils écoutent.
-                    </p>
-
-                    <h2 class="sub-header">Les Loups-Garous (Lupins)</h2>
-                    <p class="text-body">
-                        Ne allez pas dans les parcs la nuit. N'allez pas à la campagne. Ils sont réels, ils font trois mètres de haut, et ils peuvent vous déchiqueter en une seconde.
-                    </p>
-
-                    <h2 class="sub-header">Le Sabbat</h2>
-                    <p class="text-body">
-                        Des fanatiques qui ont rejeté leur humanité. Ils veulent dominer le monde ouvertement. Ce sont des monstres sans pitié qui dévorent les jeunes vampires. Fuyez-les.
-                    </p>
-                `
-            },
-            blood: {
-                title: "Sang & Servitude",
-                subtitle: "Survivre et Dominer",
-                body: `
-                    <p class="text-body">
-                        Votre existence tourne autour de deux axes : obtenir du sang pour survivre et protéger votre non-vie durant les heures mortelles du jour.
-                    </p>
-
-                    <h2 class="sub-header">La Chasse</h2>
-                    <p class="text-body">
-                        Se nourrir n'est pas un crime, c'est une nécessité biologique. Nous appelons cela <strong>"Le Baiser"</strong>.
-                    </p>
-                    <ul class="list-disc pl-5 mb-4 text-gray-400 space-y-3 font-mono text-sm">
-                        <li><strong>L'Extase :</strong> Contrairement aux films, la morsure ne fait pas mal. Lorsque vous percez la peau, la victime ressent une euphorie paralysante semblable à une drogue dure. C'est notre mécanisme de défense naturel. Ils ne crieront pas.</li>
-                        <li><strong>La Fermeture :</strong> Après avoir bu, léchez simplement la plaie. Votre salive possède des propriétés surnaturelles qui referment la peau instantanément, ne laissant aucune trace visible.</li>
-                        <li><strong>La Règle d'Or :</strong> Ne prenez jamais trop. Si le cœur s'arrête, vous avez commis un meurtre. Cela tache votre Humanité et attire l'attention de la police. Arrêtez-vous avant qu'il ne soit trop tard.</li>
-                    </ul>
-
-                    <h2 class="sub-header">Les Goules</h2>
-                    <p class="text-body">
-                        Le soleil est votre ennemi mortel. Pour agir le jour, gérer vos finances ou protéger votre refuge, vous avez besoin de serviteurs loyaux.
-                    </p>
-                    <p class="text-body">
-                        Donnez un peu de votre sang à un mortel *sans* le vider au préalable, et il deviendra une <strong>Goule</strong>.
-                    </p>
-                    <div class="quote-box">
-                        "Une goule est un chien de garde qui peut signer des chèques, porter une arme et conduire une voiture en plein jour."
-                    </div>
-                    <p class="text-body">
-                        <strong>Avantages :</strong>
-                        <br>• Ils cessent de vieillir tant qu'ils sont nourris mensuellement.
-                        <br>• Ils gagnent une fraction de votre force et de votre résistance.
-                        <br>• Ils vous vouent une loyauté surnaturelle et obsessionnelle (le Lien de Sang).
-                    </p>
-                    <p class="text-body warning-text">
-                        <strong>Dangers :</strong>
-                        <br>La Vitae est une addiction pire que l'héroïne. Si vous manquez une dose, votre goule peut devenir folle, violente, ou vous trahir pour trouver un autre maître. Ce sont des esclaves, mais des esclaves dangereux.
-                    </p>
-                `
-            },
-            etiquette: {
-                title: "Codes Sociaux",
-                subtitle: "Survivre à la Cour",
-                body: `
-                    <p class="text-body">
-                        Ne vous y trompez pas. Le salon d'un Prince est aussi dangereux qu'une ruelle sombre. Une insulte mal placée peut vous valoir une exécution sommaire.
-                    </p>
-
-                    <h2 class="sub-header">L'Élysée (Elysium)</h2>
-                    <p class="text-body">
-                        Le terrain neutre déclaré par le Prince (musées, opéras, clubs privés). C'est le sanctuaire de la Camarilla.
-                    </p>
-                    <ul class="list-disc pl-5 mb-4 text-gray-400 space-y-2">
-                        <li><strong>Violence Interdite :</strong> Lever la main sur un autre vampire ici est passible de mort. Pour vous, et souvent pour votre Sire.</li>
-                        <li><strong>Disciplines Interdites :</strong> N'utilisez jamais vos pouvoirs. C'est considéré comme une attaque ou une impolitesse grossière.</li>
-                        <li><strong>Le Gardien :</strong> L'Élysée est géré par un Gardien (Keeper). Sa parole fait loi à l'intérieur. Respectez-le comme le Prince.</li>
-                    </ul>
-
-                    <h2 class="sub-header">La Dette (Prestation)</h2>
-                    <p class="text-body">
-                        Oubliez l'argent. Entre immortels, la seule monnaie est la faveur, appelée <strong>Dette</strong> ou <strong>Prestation</strong>.
-                    </p>
-                    <p class="text-body warning-text">
-                        Règle absolue : Ne dites jamais "Merci".
-                    </p>
-                    <p class="text-body">
-                        Dire "merci" implique que la transaction est terminée par un mot poli. C'est une insulte. Au lieu de cela, reconnaissez la dette : <em>"Je suis en votre dette"</em>.
-                    </p>
-                    <ul class="list-disc pl-5 mb-4 text-gray-400 space-y-2 font-mono text-sm">
-                        <li><strong>Dette Triviale :</strong> Un petit service (couvrir une erreur mineure).</li>
-                        <li><strong>Dette Mineure :</strong> Une aide significative (prêter un territoire, enseigner une discipline).</li>
-                        <li><strong>Dette Majeure :</strong> Changer le cours d'une politique, sauver la réputation.</li>
-                        <li><strong>Dette de Vie :</strong> Quelqu'un vous a sauvé de la Mort Ultime. Vous lui appartenez jusqu'à ce que vous lui sauviez la vie en retour.</li>
-                    </ul>
-                `
-            },
-            lexicon: {
-                title: "Lexique de la Nuit",
-                subtitle: "Parlez comme un Ancien",
-                body: `
-                    <p class="text-body">
-                        Les mots ont un pouvoir. Utilisez les bons termes pour ne pas passer pour un touriste.
-                    </p>
-
-                    <div class="mt-6 space-y-4">
-                        <div>
-                            <span class="lexicon-term">Amarante (Diablerie)</span>
-                            <span class="lexicon-def">L'acte de boire le sang d'un autre vampire jusqu'à la mort pour voler son âme et sa puissance. Le crime suprême.</span>
-                        </div>
-                        <div>
-                            <span class="lexicon-term">Bétail (Kine)</span>
-                            <span class="lexicon-def">Terme méprisant pour désigner les humains. La nourriture.</span>
-                        </div>
-                        <div>
-                            <span class="lexicon-term">Caïnite / La Famille (Kindred)</span>
-                            <span class="lexicon-def">Nous. Les vampires. Descendants de Caine.</span>
-                        </div>
-                        <div>
-                            <span class="lexicon-term">Domaine</span>
-                            <span class="lexicon-def">Le territoire revendiqué par un vampire. Il y a droit de vie et de mort sur ceux qui y entrent.</span>
-                        </div>
-                        <div>
-                            <span class="lexicon-term">Golconde</span>
-                            <span class="lexicon-def">Un état mythique d'équilibre parfait entre la Bête et l'Humanité. Le Nirvana des damnés.</span>
-                        </div>
-                        <div>
-                            <span class="lexicon-term">Mascarade</span>
-                            <span class="lexicon-def">Le Voile. L'effort collectif pour cacher notre existence à l'humanité.</span>
-                        </div>
-                        <div>
-                            <span class="lexicon-term">Prince</span>
-                            <span class="lexicon-def">Le dirigeant d'une ville, quel que soit son genre. Il fait et défait la loi.</span>
-                        </div>
-                        <div>
-                            <span class="lexicon-term">Primogène</span>
-                            <span class="lexicon-def">Le conseil des anciens qui "conseille" le Prince (et complote contre lui).</span>
-                        </div>
-                        <div>
-                            <span class="lexicon-term">Refuge (Haven)</span>
-                            <span class="lexicon-def">L'endroit où vous dormez le jour. Votre sanctuaire.</span>
-                        </div>
-                        <div>
-                            <span class="lexicon-term">Torpeur</span>
-                            <span class="lexicon-def">Le sommeil de mort. Un coma surnaturel dû à des blessures graves ou au manque de sang.</span>
-                        </div>
-                    </div>
-                `
-            }
-        };
-
-        function loadSection(key) {
-            const container = document.getElementById('content-container');
-            const data = content[key];
-            const items = document.querySelectorAll('.sidebar-item');
-
-            // Update Active State
-            items.forEach(item => item.classList.remove('active'));
-            document.getElementById('nav-' + key).classList.add('active');
-
-            // Animate Out
-            container.style.opacity = '0';
-            container.style.transform = 'translateY(5px)';
-            
-            setTimeout(() => {
-                // Update Content
-                container.innerHTML = `
-                    <div class="fade-in">
-                        <h1 class="chapter-title">${data.title}</h1>
-                        <div class="text-red-500 font-mono text-sm tracking-widest mb-8 uppercase border-b border-red-900/30 pb-2 w-max">
-                            ${data.subtitle}
-                        </div>
-                        ${data.body}
-                        
-                        <div class="mt-12 pt-6 border-t border-white/10 flex justify-between text-xs font-mono text-gray-600">
-                            <span>CRYPTAGE: AES-256</span>
-                            <span>LECTURE SEULE</span>
-                        </div>
-                    </div>
-                `;
-                
-                // Animate In
-                container.style.opacity = '1';
-                container.style.transform = 'translateY(0)';
-            }, 300);
-        }
-
-        // Init
-        loadSection('intro');
-
-        // Mobile Menu Toggle
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const sidebar = document.getElementById('sidebar');
-        const mobileOverlay = document.getElementById('mobileOverlay');
-        const mainContainer = document.getElementById('mainContainer');
-
-        function toggleMobileMenu() {
-            mobileMenuBtn.classList.toggle('active');
-            sidebar.classList.toggle('open');
-            mobileOverlay.classList.toggle('active');
-        }
-
-        function closeMobileMenu() {
-            mobileMenuBtn.classList.remove('active');
-            sidebar.classList.remove('open');
-            mobileOverlay.classList.remove('active');
-        }
-
-        // Move sidebar to body level on mobile for proper z-index stacking
-        function handleSidebarPosition() {
-            const isMobile = window.innerWidth <= 768;
-            const sidebarInBody = sidebar.parentElement === document.body;
-
-            if (isMobile && !sidebarInBody) {
-                // Move sidebar to body level (before overlay)
-                document.body.insertBefore(sidebar, mobileOverlay.nextSibling);
-                closeMobileMenu();
-            } else if (!isMobile && sidebarInBody) {
-                // Move sidebar back into main container
-                mainContainer.insertBefore(sidebar, mainContainer.firstChild);
-            }
-        }
-
-        // Initial position check
-        handleSidebarPosition();
-
-        // Handle resize
-        window.addEventListener('resize', handleSidebarPosition);
-
-        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
-        mobileOverlay.addEventListener('click', closeMobileMenu);
-
-        // Close menu when clicking on a sidebar item (mobile)
-        document.querySelectorAll('.sidebar-item').forEach(item => {
-            item.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
-                    closeMobileMenu();
-                }
-            });
-        });
-
-    </script>
+document.addEventListener('keydown',e=>{
+if(e.key==='Escape'&&document.querySelector('.sidebar.show'))toggleNav();
+});
+</script>
 </body>
 </html>
